@@ -5,23 +5,24 @@ import java.lang.*;
 
 public interface CacheLibrary<K,V>
 {
-  // @TODO: handle dynamic types of keys/values after getting info for resume
   /**
    * @brief Retrieves a value from the cache by a given key
-   * @return [description]
+   * @return V Value corresponding to given key
    */
   public V get(K key);
 
   /**
    * @brief Inserts a key-value pair into the cache
-   * @param Object key   [description]
-   * @param Object value [description]
+   * @param K key
+   * @param V value
+   * @return boolean True on success
    */
   public boolean set(K key, V value);
 
   /**
    * @brief Deletes a key-value entry from the cache by a given key
-   * @param Object key [description]
+   * @param K key
+   * @return boolean True on success
    */
   public boolean delete(K key);
 
@@ -33,13 +34,14 @@ public interface CacheLibrary<K,V>
 
  /**
   * @brief Inserts key-value pairs into the cache
-  * @param HashMap<Object,Object> entries
+  * @param HashMap<K,V> entries
   */
   public boolean setCollection(HashMap<K, V> entries);
 
   /**
    * @brief Deletes key-value entries from the cache that corresponds to given keys
-   * @param Object key [description]
+   * @param K key
+   * @return boolean True on success
    */
   public boolean deleteCollection(K keys[]);
 
@@ -48,8 +50,26 @@ public interface CacheLibrary<K,V>
    */
   public void clear();
 
+  /**
+   * @brief Simple LRU Replacement Algorithm
+   */
   public void LRU();
 
+  /**
+   * @brief Simple MRU Replacement Algorithm
+   */
   public void MRU();
+
+  /**
+   * @brief Indicates a particular function to invoke when cache is full
+   * @param String function Name of function to use when cache is full
+   */
+  public void setReplacementAlgorithm(String function);
+
+  // @TODO: change to private
+  /**
+   * @brief Evicts key-value pairs when cache is full and an insertion is required
+   */
+  public void eviction();
 
 }
