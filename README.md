@@ -9,7 +9,7 @@ This cache should support all types in Java for its keys and values, and an inst
 
 ### Approach
 
-The purpose of a cache is to reduce the time it takes for users to retrieve viable information without having to access database and outside servers, and within the constraints of a cache being viable until the end of code execution, this translates to using methods within this library obtain a faster access time for users during run time. With this consideration in mind, this design opted to utilize the O(1) retrieval time of a HashMap data structure in Java. 
+The purpose of a cache is to reduce the time it takes for users to retrieve viable information without having to access database and outside servers, and within the constraints of a cache being viable until the end of code execution, this translates to using methods within this library to obtain a faster access time for users during run time. With this consideration in mind, this design opted to utilize the O(1) retrieval time of a HashMap data structure in Java. 
 
 The process of retrieving data from this cache follows these steps: <br>
 
