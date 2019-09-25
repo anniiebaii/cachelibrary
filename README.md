@@ -125,7 +125,7 @@ public interface CacheLibrary<K,V>
 
 Class used internally by NSetCache to store a cache entry as an object
 
-```
+```java
 private class CacheItem<K,V>
 {
   private long timestamp;
