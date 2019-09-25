@@ -170,6 +170,8 @@ private class CacheItem<K,V>
 
 ### NSetCache Base Class implementing the interface
 
+Users are able to override the functions in this class if desired to modify the hashing function and the replacement algorithms. The `setReplacementAlgorithm` function overrides the default replacement algorithm, LRU, and allows users to define the function the cache should invoke when inserting while the cache is full. This function enables general flexibility for users and can be extendable for further specific usage when overridden.
+
 ```java
 public class NSetCache
 {
