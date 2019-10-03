@@ -6,60 +6,112 @@ import java.lang.reflect.Method;
 
 public class NSetCache<K,V> implements CacheLibrary<K,V>
 {
-
-  // @TODO: WANT
-  //          block 0 => array(one=>one, one=>one)
-  //          ...
-  //          block n => array(one=>one, one=>one)
-
-  /**
-   * @brief Cache storage for key-value pairs
-   */
-  private final HashMap<int,HashMap<K,V>> cache = new HashMap<int,HashMap<K,V>>();
-
+  // data layer of Cache
+  // HashMap: Integer => HashMap
+  //                            K => V
+  // private variables
+  private final int N_sets;
+  private final int M_blocks;
   private final String name;
   private Method replacementAlgorithm;
-  private final int N;
+  private final HashMap<Integer, HashMap<K,CacheItem<K,V>>> cache = new HashMap<Integer, HashMap<K,CacheItem<K,V>>>();
 
   /**
-   * @brief Basic constructor
-   * @param String name
-   * @param Integer n
-   * @param HashMap<K,V> loadedMap
+   * @brief Basic Constructor
+   * @param String name The name of the cache
+   * @param Integer n The number of sets
+   * @param Integer m The number of entries per set
    */
-  public NSetCache(String name, Integer n, HashMap<int,HashMap<K,V>> loadedMap)
+  public NSetCache(String name, Integer n, Integer m)
   {
-    if (loadedMap != null)
-    {
-      this.cache.putAll(loadedMap);
-    }
-
     this.name = name;
-    this.N = n;
+    this.N_sets = n;
+    this.M_blocks = m;
+  }
 
-    // set default replacement algorithm when cache is full
-    this.setReplacementAlgorithm("LRU");
+  /**
+   * @brief Constructor
+   * @param String name The name of the cache
+   * @param Integer n The number of sets
+   * @param Integer m The number of entries per set
+   * @param String function The name of the algorithm to invoke when the cache is full
+   */
+  public NSetCache(String name, Integer n, Integer m, String function)
+  {
+    this.name = name;
+    this.N_sets = n;
+    this.M_blocks = m;
+    try
+    {
+      // @TODO throwing exception here for LRU
+      Method method = this.getClass().getMethod(function, Integer.class);
+      this.replacementAlgorithm = method;
+    }
+    catch (NoSuchMethodException e)
+    {
+      // stop object instantiation
+      System.out.println("Invalid method " + function + " used as replacement algorithm.");
+    }
+    // initialize n blocks
+    for (int i = 1; i <= n; i++)
+    {
+      this.cache.put(i, new HashMap<K,CacheItem<K,V>>(m));
+    }
+  }
+
+  public NSetCache(String name, Integer n, Integer m, String function, HashMap<Integer, HashMap<K,CacheItem<K,V>>> loadedMap)
+  {
+    this.name = name;
+    this.N_sets = n;
+    this.M_blocks = m;
+    try
+    {
+      Method method = NSetCache.class.getDeclaredMethod(function, Integer.class);
+      this.replacementAlgorithm = method;
+    }
+    catch (NoSuchMethodException e)
+    {
+      // stop object instantiation
+      System.out.println("Invalid method used as replacement algorithm.");
+    }
+    // verify the loadedMap satisfies the N set conditions
   }
 
   /**
    * @brief Retrieves a value from the cache by a given key
-   * @return [description]
+   * @return V Value corresponding to given key
    */
   public V get(K key)
   {
-    K decryptedKey = this.decryptKey(key);
+    // get block to search
+    int index = this.hashCode(key);
 
-    return this.cache.get(decryptedKey);
+    // get entry from block
+    HashMap<K, CacheItem<K,V>> block = this.cache.get(index);
+    CacheItem<K,V> entry = block.get(key);
+    if (entry != null)
+    {
+      System.out.println("No such value with the given key.");
+    }
+    return entry.getValue();
   }
 
   /**
    * @brief Inserts a key-value pair into the cache
-   * @param K key   [description]
-   * @param V value [description]
+   * @param K key
+   * @param V value
+   * @return boolean True if new pair, False if old pair
    */
   public boolean set(K key, V value)
   {
-    if (this.cache.put(key,value) != null)
+    CacheItem<K,V> entry = new CacheItem<K,V>(key, value);
+    int index = this.hashCode(key);
+    HashMap<K, CacheItem<K,V>> block = this.cache.get(index);
+    if (block.size() > this.M_blocks)
+    {
+      eviction(index);
+    }
+    if (this.cache.get(index).put(key, entry) == null)
     {
       return true;
     }
@@ -68,46 +120,31 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
 
   /**
    * @brief Deletes a key-value entry from the cache by a given key
-   * @param K key [description]
+   * @param K key
+   * @return boolean True on success
    */
   public boolean delete(K key)
   {
-    if (this.cache.remove(key) != null)
+    int index = this.hashCode(key);
+    V prevEntry = this.cache.get(index).get(key).getValue();
+    if (this.cache.get(index).remove(key) == prevEntry)
     {
       return true;
     }
     return false;
   }
-
-  /**
-   * @brief Retrieve values from cache based on collection of keys
-   * @param K[] keys Collection of keys to retrieve values from the cache
-   * @return HashMap<K,V> collection of key-value pairs
-   */
+ /**
+  * @brief Retrieves key-value pairs from the cache by the given keys
+  * @return HashMap<K,V> collection
+  */
   public HashMap<K,V> getCollection(K[] keys)
   {
     HashMap<K,V> collection = new HashMap<K,V>();
-    for (K key : keys)
+    for (int i = 0; i < keys.length; i++)
     {
-      K decryptedKey = this.decryptKey(key);
-      K encryptedKey = this.encryptKey(key);
-      collection.put(encryptedKey, this.cache.get(decryptedKey));
+      collection.put(keys[i], this.get(keys[i]));
     }
     return collection;
-  }
-
-  /**
-   * @brief Deletes key-value entries from the cache that corresponds to given keys
-   * @param Object key [description]
-   */
-  public boolean deleteCollection(K[] keys)
-  {
-    for (K key : keys)
-    {
-      K encryptedKey = this.encryptKey(key);
-      this.cache.remove(encryptedKey);
-    }
-    return true;
   }
 
  /**
@@ -116,14 +153,27 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   */
   public boolean setCollection(HashMap<K, V> entries)
   {
-    for (HashMap.Entry<K,V> entry : entries.entrySet())
+    for (Map.Entry<K,V> entry : entries.entrySet())
     {
-      K key = entry.getKey();
-      V value = entry.getValue();
-      this.cache.put(encryptKey(key), value);
+      this.set(entry.getKey(), entry.getValue());
     }
     return true;
   }
+
+  /**
+   * @brief Deletes key-value entries from the cache that corresponds to given keys
+   * @param K key
+   * @return boolean True on success
+   */
+  public boolean deleteCollection(K keys[])
+  {
+    for (int i = 0; i < keys.length; i++)
+    {
+      this.delete(keys[i]);
+    }
+    return true;
+  }
+
   /**
    * @brief Clears all entries from the cache
    */
@@ -132,85 +182,103 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     this.cache.clear();
   }
 
-  public void show()
+  /**
+   * @brief Simple LRU Replacement Algorithm
+   */
+  public void LRU(int index)
   {
-    System.out.println("Hello World!");
+    CacheItem<K,V> least = new CacheItem<K,V>();
+    for (Map.Entry<K, CacheItem<K,V>> entry : this.cache.get(index).entrySet())
+    {
+      CacheItem<K,V> curr = entry.getValue();
+      if (curr.getTimestamp() < least.getTimestamp())
+      {
+        least = curr;
+      }
+    }
+    this.cache.get(index).remove(least.getKey());
   }
 
-  public void LRU()
-  {}
+  /**
+   * @brief Simple MRU Replacement Algorithm
+   */
+  public void MRU(int index)
+  {
+    CacheItem<K,V> recent = new CacheItem<K,V>();
 
-  public void MRU()
-  {}
+    for (Map.Entry<K, CacheItem<K,V>> entry : this.cache.get(index).entrySet())
+    {
+      CacheItem<K,V> curr = entry.getValue();
+      if (curr.getTimestamp() < recent.getTimestamp())
+      {
+        recent = curr;
+      }
+    }
+    this.cache.get(index).remove(recent.getKey());
+  }
 
-  public void setReplacementAlgorithm(String function)
+  /**
+   * @brief Client usage function intended to be overriden with a custom replacement algorithmm
+   * @param int Index The index of the block to evict an entry from
+   */
+  public void customReplacementAlgorithm(int index)
+  {
+    // calls default replacement algorithm LRU
+    this.LRU(index);
+  }
+
+  /**
+   * @brief Retrieves the hashCode based on the key provided
+   * @param  K key [description]
+   * @return Integer The index of the block in which this key is mapped to
+   */
+  public int hashCode(K key)
+  {
+      // @TODO: research good hashing practices
+      return 0;
+  }
+
+  /**
+   * @brief Evicts key-value pairs when cache is full and an insertion is required
+   */
+  public void eviction(int index)
   {
     try
     {
-      Method method = Cache.class.getDeclaredMethod(function);
-      this.replacementAlgorithm = method;
-    }
-    catch (NoSuchMethodException e)
-    {
-      System.out.println("Invalid method used as new replacement algorithm.");
-    }
-  }
-
-  public void test()
-  {
-    System.out.println("WORKED REFLECT");
-  }
-
-  // @TODO: change to private
-  public void eviction()
-  {
-    try
-    {
-      this.setReplacementAlgorithm("tesst"); // test, can be removed
-      this.replacementAlgorithm.invoke(this);
+      // this.setReplacementAlgorithm("tesst"); // test, can be removed
+      this.replacementAlgorithm.invoke(this, index);
     }
     catch (Exception e)
     {
-      System.out.println("Replacement algorithm must declared be in cache class.");
+      System.out.println("Replacement algorithm not declared in cache object's class.");
     }
   }
 
-  private int getHash(K key)
-  {
-    return 0;
-  }
-
-  private K encryptKey(K key)
-  {
-    return key;
-  }
-
-  private K decryptKey(K key)
-  {
-    return key;
-  }
-
-  private class Cache<K,V>
+  private class CacheItem<K,V>
   {
     private long timestamp;
     private K key;
     private V value;
 
-    public Cache(K key, V value)
+    public CacheItem()
+    {
+    }
+
+    public CacheItem(K key, V value)
     {
       this.key = key;
       this.value = value;
-      this.timestamp = getCurrentTime();
+      this.timestamp = this.getCurrentTime();
     }
 
-    public Cache(K key, V value, long timestamp)
+    public CacheItem(K key, V value, long timestamp)
     {
       this.key = key;
       this.value = value;
       this.timestamp = timestamp;
     }
 
-    public static long getCurrentTime()
+    public long getCurrentTime()
     {
       Date date = new Date(System.currentTimeMillis());
       return date.getTime();
@@ -228,4 +296,6 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     {
       return this.timestamp;
     }
+
+  }
 }

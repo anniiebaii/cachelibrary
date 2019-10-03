@@ -5,18 +5,18 @@
 
 The purpose of this exercise is to implement a N-Way Set-Associative Cache that is accessible to users through a library.
 
-This cache should support all types in Java for its keys and values, and an instantiation of stated cache must have a declared key and value type, which can be of different types. All keys and values should be the specified type when reading/writing from the cache, otherwise exceptions will be thrown. Support for all keys and values should also be extended to cache replacement algorithms. The library should also include replacement algorithm flexibilities for users. 
+This cache should support all types in Java for its keys and values, and an instantiation of stated cache must have a declared key and value type, which can be of different types. All keys and values should be the specified type when reading/writing from the cache, otherwise exceptions will be thrown. Support for all keys and values should also be extended to cache replacement algorithms. The library should also include replacement algorithm flexibilities for users.
 
 ### Approach
 
-The purpose of a cache is to reduce the time it takes for users to retrieve viable information without having to access database and outside servers, and within the constraints of a cache being viable until the end of code execution, this translates to using methods within this library to obtain a faster access time for users during run time. With this consideration in mind, this design opted to utilize the O(1) retrieval time of a HashMap data structure in Java. 
+The purpose of a cache is to reduce the time it takes for users to retrieve viable information without having to access database and outside servers, and within the constraints of a cache being viable until the end of code execution, this translates to using methods within this library to obtain a faster access time for users during run time. With this consideration in mind, this design opted to utilize the O(1) retrieval time of a HashMap data structure in Java.
 
 The process of retrieving data from this cache follows these steps: <br>
 
 1. Generate a hashCode between 1 and N (inclusive) for a given key
 2. Within the outer hashMap, access the inner hashMap associated with the generated hashCode => O(1)
-3. Retrieve the value stored using the given key from the selected inner hashMap => O(1) 
-4. Return the value to the user 
+3. Retrieve the value stored using the given key from the selected inner hashMap => O(1)
+4. Return the value to the user
 
 ## Technologies
 
@@ -48,7 +48,7 @@ Compile and use the library by using the following steps:
 ```
 
 
-### CacheLibrary Interface 
+### CacheLibrary Interface
 ```java
 public interface CacheLibrary<K,V>
 {
@@ -188,14 +188,14 @@ public class NSetCache
       }
     }
 */
-  
+
   // private variables
   private final int N;
   private final String name;
   private final HashMap<Integer, HashMap<K,CacheItem>> cache = new HashMap<Integer, HashMap<K,CacheItem>>();
-  
+
   // implements all interface methods
-    
+
   /**
    * @brief Basic Constructor
    * @param String name The name of the cache
@@ -203,20 +203,21 @@ public class NSetCache
    */
   public NSetCache(String name, Integer n)
   { ... }
-  
-  
+
+
   /**
    * @brief Constructor
    * @param String name The name of the cache
    * @param Integer n The number of sets and entries in each set
    * @param HashMap<Integer, HashMap<K, CacheItem>> loadedMap Existing cache data to load into current cache
    */
-  public NSetCache(String name, Integer n, HashMap<Integer, HashMap<K, CacheItem>> loadedMap)
+  public NSetCache(String name, Integer n,
+                   HashMap<Integer, HashMap<K, CacheItem>> loadedMap)
   { ... }
 
   /**
    * @brief Retrieves a hashCode based on the key provided
-   * @param  K key 
+   * @param  K key
    * @return Integer The index of the block in which this key is mapped to (between 1 and N, inclusive)
    */
   private int hashCode(K key)
@@ -236,7 +237,7 @@ Because the following library does not utilize any database or data structure co
 - [ ] CacheItem Class
 - [ ] Unit Tests
 
-## Unit Test Checklist 
+## Unit Test Checklist
 - [ ] NSetCache Base Class functions
 - [ ] Cache Library compilation/import usage
 

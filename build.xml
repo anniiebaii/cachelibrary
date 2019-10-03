@@ -1,0 +1,56 @@
+<project>
+
+  <path id="project.class.path">
+    <pathelement location="build/src"/>
+    <pathelement location="lib/junit-4.8.2.jar"/>
+  </path>
+
+  <target name="compile" description="compile the code">
+    <mkdir dir="build/src" />
+    <javac srcdir="src"
+	   destdir="build"
+	   includeantruntime="false"
+	   debug="true" >
+      <classpath refid="project.class.path" />
+    </javac>
+    <javac srcdir="tests"
+	   destdir="build/src"
+	   includeantruntime="false"
+	   debug="true" >
+      <classpath refid="project.class.path" />
+    </javac>
+  </target>
+
+  <target name="clean" description="clean up the project">
+    <delete>
+      <fileset dir="build/src" includes="*.class"/>
+      <fileset dir="build/src" includes="*.jar"/>
+    </delete>
+  </target>
+
+
+  <target name="run" description="run the main">
+    <java classname="UseTest" classpath="build"/>
+  </target>
+
+  <target name="jar" depends="compile" description="create a jar file">
+    <jar destfile="build/NSetCache.jar">
+      <fileset dir="build" includes="*.class"/>
+      <manifest>
+	<attribute name="Main-Class" value="NSetCache"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="test" depends="compile" description="run JUnit tests">
+    <junit haltonerror="no" haltonfailure="no">
+      <classpath refid="project.class.path" />
+      <batchtest fork="yes">
+	<fileset dir="tests">
+	  <include name="*Test.java"/>
+	</fileset>
+      </batchtest>
+      <formatter type="brief" usefile="false" />
+    </junit>
+  </target>
+</project>

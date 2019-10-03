@@ -53,23 +53,22 @@ public interface CacheLibrary<K,V>
   /**
    * @brief Simple LRU Replacement Algorithm
    */
-  public void LRU();
+  public void LRU(int index);
 
   /**
    * @brief Simple MRU Replacement Algorithm
    */
-  public void MRU();
+  public void MRU(int index);
 
   /**
-   * @brief Indicates a particular function to invoke when cache is full
-   * @param String function Name of function to use when cache is full
+   * @brief Client usage function intended to be overriden with a custom replacement algorithmm
+   * @param int Index The index of the block to evict an entry from
    */
-  public void setReplacementAlgorithm(String function);
+  public void customReplacementAlgorithm(int index);
 
-  // @TODO: change to private
   /**
    * @brief Evicts key-value pairs when cache is full and an insertion is required
    */
-  public void eviction();
+  public void eviction(int index);
 
 }
