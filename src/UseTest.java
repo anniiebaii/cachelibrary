@@ -1,9 +1,9 @@
-package src;
 import java.io.*;
 import java.util.*;
 import java.lang.*;
+import src.NSetCache;
 
-class UseTest
+public class UseTest
 {
   public static void main(String[] args)
   {
