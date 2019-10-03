@@ -25,6 +25,7 @@
     <delete>
       <fileset dir="build/src" includes="*.class"/>
       <fileset dir="build/src" includes="*.jar"/>
+      <fileset dir="build" includes="*.class"/>
     </delete>
   </target>
 
