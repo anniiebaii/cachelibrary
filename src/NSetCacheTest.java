@@ -46,20 +46,7 @@ public class NSetCacheTest
     CacheItem entry = cache.get(1);
     assertEquals("Hello World", entry.getValue());
     CacheItem nullEntry = cache.get(2);
-
-    boolean fail;
-    try
-    {
-      fail = false;
-      // this will throw exception b/c CacheItem::getValue() has expected return type of not null
-      assertNull(nullEntry.getValue());
-    }
-    catch (NullPointerException e)
-    {
-      fail = true;
-    }
-    assertTrue(fail);
-
+    assertTrue(nullEntry.isEmpty());
   }
 
   @Test
@@ -81,19 +68,9 @@ public class NSetCacheTest
     assertTrue(result);
 
     // @TODO: reflect
+
     CacheItem nullEntry = cache.get(1);
-    boolean fail;
-    try
-    {
-      fail = false;
-      // this will throw exception b/c CacheItem::getValue() has expected return type of not null
-      assertNull(nullEntry.getValue());
-    }
-    catch (NullPointerException e)
-    {
-      fail = true;
-    }
-    assertTrue(fail);
+    assertTrue(nullEntry.isEmpty());
   }
 
   @Test
@@ -114,13 +91,37 @@ public class NSetCacheTest
   @Test
   public void test_setCollection()
   {
-
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
+    HashMap<Integer, String> data = new HashMap<Integer, String>(3);
+    // data.set(1, "Hello One");
+    // data.set(2, "Hello Two");
+    // data.set(3, "Hello Three");
+    // @TODO: reflect
   }
 
   @Test
   public void test_deleteCollection()
   {
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
+    cache.set(1, "Hello One");
+    cache.set(2, "Hello Two");
+    cache.set(3, "Hello Three");
 
+    Integer[] keys = {1, 2, 3};
+    cache.deleteCollection(keys);
+    boolean fail;
+    try
+    {
+      fail = false;
+      assertEquals("Hello One", cache.get(1).getValue());
+      assertEquals("Hello Two", cache.get(2).getValue());
+      assertEquals("Hello Three", cache.get(3).getValue());
+    }
+    catch (NullPointerException e)
+    {
+      fail = true;
+    }
+    assertTrue(fail);
   }
 
   @Test

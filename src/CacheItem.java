@@ -8,9 +8,18 @@ public class CacheItem<K,V>
   private long timestamp;
   private K key;
   private V value;
+  private boolean isEmpty = true;
 
   public CacheItem(K key, V value)
   {
+    if (value != null && key != null)
+    {
+      this.isEmpty = false;
+    }
+    else
+    {
+      this.isEmpty = true;
+    }
     this.key = key;
     this.value = value;
     this.timestamp = this.getCurrentTime();
@@ -18,6 +27,14 @@ public class CacheItem<K,V>
 
   public CacheItem(K key, V value, long timestamp)
   {
+    if (value != null && key != null)
+    {
+      this.isEmpty = false;
+    }
+    else
+    {
+      this.isEmpty = true;
+    }
     this.key = key;
     this.value = value;
     this.timestamp = timestamp;
@@ -40,6 +57,11 @@ public class CacheItem<K,V>
   public long getTimestamp()
   {
     return this.timestamp;
+  }
+
+  public boolean isEmpty()
+  {
+    return this.isEmpty;
   }
 
 }

@@ -305,9 +305,17 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     }
   }
 
+  /**
+   * @brief Returns a dummy CacheItem object to users if it is a cache miss.
+   * @note It is expected that users @Override this with their own database implementation
+   * @param  key [description]
+   * @return     [description]
+   */
   private CacheItem retrieveFromDB(K key)
   {
-    CacheItem<K,V> dummyItem = new CacheItem<K,V>(null,null);
+    CacheItem<K,V> dummyItem = new CacheItem<K,V>(null, null);
+    // dummyItem is theoretically from DB
+    // insert new entry into cache
     return dummyItem;
   }
 }
