@@ -3,6 +3,8 @@ import java.io.*;
 import java.util.*;
 import java.lang.*;
 import java.lang.reflect.Method;
+import java.security.*;
+import java.math.BigInteger;
 
 public class NSetCache<K,V> implements CacheLibrary<K,V>
 {
@@ -27,6 +29,11 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     this.name = name;
     this.N_sets = n;
     this.M_blocks = m;
+    // initialize n blocks
+    for (int i = 1; i <= n; i++)
+    {
+      this.cache.put(i, new HashMap<K,CacheItem<K,V>>(m));
+    }
   }
 
   /**
@@ -84,7 +91,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   public V get(K key)
   {
     // get block to search
-    int index = this.hashCode(key);
+    int index = this.getHash(key);
 
     // get entry from block
     HashMap<K, CacheItem<K,V>> block = this.cache.get(index);
@@ -105,7 +112,8 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   public boolean set(K key, V value)
   {
     CacheItem<K,V> entry = new CacheItem<K,V>(key, value);
-    int index = this.hashCode(key);
+    int index = this.getHash(key);
+    System.out.println("INDEX: " + index);
     HashMap<K, CacheItem<K,V>> block = this.cache.get(index);
     if (block.size() > this.M_blocks)
     {
@@ -125,7 +133,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public boolean delete(K key)
   {
-    int index = this.hashCode(key);
+    int index = this.getHash(key);
     V prevEntry = this.cache.get(index).get(key).getValue();
     if (this.cache.get(index).remove(key) == prevEntry)
     {
@@ -232,10 +240,36 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    * @param  K key [description]
    * @return Integer The index of the block in which this key is mapped to
    */
-  public int hashCode(K key)
+  public int getHash(K key)
   {
-      // @TODO: research good hashing practices
-      return 0;
+      int hash = Objects.hash(key);
+      String hashString = Integer.toString(hash);
+
+      try {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+  	    byte[] messageDigest = md.digest(hashString.getBytes());
+
+        // byte array to hex value
+        BigInteger hex = new BigInteger(1, messageDigest);
+
+        // hex value to long integer
+        BigInteger value = new BigInteger(hex.toString(16), 16);
+
+        // mod to retrieve an index from 0 to N_sets - 1 buckets
+        int hashValue = value.intValue() % this.N_sets;
+
+        // prevent negative numbers
+        if (hashValue < 0)
+        {
+          hashValue = hashValue * -1;
+        }
+        return hashValue;
+      }
+	    catch (NoSuchAlgorithmException e)
+	    {
+        // log an error
+          return 0;
+	    }
   }
 
   /**

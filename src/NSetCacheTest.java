@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import src.NSetCache;
 
 public class NSetCacheTest
 {
@@ -20,13 +21,9 @@ public class NSetCacheTest
   @Test
   public void test_basicConstructor()
   {
-    assertEquals(true, true );
-  }
-
-  @Test
-  public void test_defineAlg()
-  {
-
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
+    // assert private member variables are properly set
+    assertEquals(true, true);
   }
 
   // @Test(expected = NoSuchMethodException.class)
@@ -52,6 +49,12 @@ public class NSetCacheTest
 
   @Test
   public void test_getCollection()
+  {
+
+  }
+
+  @Test
+  public void test_setCollection()
   {
 
   }
@@ -93,7 +96,7 @@ public class NSetCacheTest
   }
 
   @Test
-  public void test_hashCode()
+  public void test_getHash()
   {
 
   }

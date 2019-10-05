@@ -1,20 +1,13 @@
 <project>
-
   <path id="project.class.path">
-    <pathelement location="build/src"/>
+    <pathelement location="build"/>
     <pathelement location="lib/junit-4.8.2.jar"/>
   </path>
 
   <target name="compile" description="compile the code">
-    <mkdir dir="build/src" />
+    <mkdir dir="build" />
     <javac srcdir="src"
 	   destdir="build"
-	   includeantruntime="false"
-	   debug="true" >
-      <classpath refid="project.class.path" />
-    </javac>
-    <javac srcdir="tests"
-	   destdir="build/src"
 	   includeantruntime="false"
 	   debug="true" >
       <classpath refid="project.class.path" />
@@ -24,21 +17,20 @@
   <target name="clean" description="clean up the project">
     <delete>
       <fileset dir="build/src" includes="*.class"/>
-      <fileset dir="build/src" includes="*.jar"/>
-      <fileset dir="build" includes="*.class"/>
+      <fileset dir="build" includes="*.jar"/>
     </delete>
   </target>
 
 
   <target name="run" description="run the main">
-    <java classname="UseTest" classpath="build"/>
+    <java classname="Example" classpath="build"/>
   </target>
 
   <target name="jar" depends="compile" description="create a jar file">
     <jar destfile="build/NSetCache.jar">
       <fileset dir="build" includes="*.class"/>
       <manifest>
-	<attribute name="Main-Class" value="NSetCache"/>
+	<attribute name="Main-Class" value="NSetcache"/>
       </manifest>
     </jar>
   </target>
@@ -47,11 +39,12 @@
     <junit haltonerror="no" haltonfailure="no">
       <classpath refid="project.class.path" />
       <batchtest fork="yes">
-	<fileset dir="tests">
+	<fileset dir="src">
 	  <include name="*Test.java"/>
 	</fileset>
       </batchtest>
       <formatter type="brief" usefile="false" />
     </junit>
   </target>
+
 </project>
