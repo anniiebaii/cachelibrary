@@ -1,10 +1,15 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import org.junit.*;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import java.io.*;
+import java.util.*;
+import java.lang.*;
 import src.NSetCache;
+import src.CacheItem;
 
 public class NSetCacheTest
 {
@@ -35,22 +40,75 @@ public class NSetCacheTest
 
   @Test
   public void test_get()
-  {}
+  {
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
+    cache.set(1, "Hello World");
+    CacheItem entry = cache.get(1);
+    assertEquals("Hello World", entry.getValue());
+    CacheItem nullEntry = cache.get(2);
+
+    boolean fail;
+    try
+    {
+      fail = false;
+      // this will throw exception b/c CacheItem::getValue() has expected return type of not null
+      assertNull(nullEntry.getValue());
+    }
+    catch (NullPointerException e)
+    {
+      fail = true;
+    }
+    assertTrue(fail);
+
+  }
 
   @Test
   public void test_set()
-  {}
+  {
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
+    cache.set(1, "Hello World");
+    // @TODO: reflect
+  }
 
   @Test
   public void test_delete()
   {
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
+    cache.set(1, "Hello World");
+    CacheItem entry = cache.get(1);
+    assertEquals("Hello World", entry.getValue());
+    boolean result = cache.delete(1);
+    assertTrue(result);
 
+    // @TODO: reflect
+    CacheItem nullEntry = cache.get(1);
+    boolean fail;
+    try
+    {
+      fail = false;
+      // this will throw exception b/c CacheItem::getValue() has expected return type of not null
+      assertNull(nullEntry.getValue());
+    }
+    catch (NullPointerException e)
+    {
+      fail = true;
+    }
+    assertTrue(fail);
   }
 
   @Test
   public void test_getCollection()
   {
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
+    cache.set(1, "Hello One");
+    cache.set(2, "Hello Two");
+    cache.set(3, "Hello Three");
 
+    Integer[] keys = {1, 2, 3};
+    HashMap<Integer, CacheItem> col = cache.getCollection(keys);
+    assertEquals("Hello One", col.get(1).getValue());
+    // assertEquals("Hello Two", col.get(2).getValue());
+    assertEquals("Hello Three", col.get(3).getValue());
   }
 
   @Test

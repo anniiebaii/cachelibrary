@@ -30,7 +30,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     this.N_sets = n;
     this.M_blocks = m;
     // initialize n blocks
-    for (int i = 1; i <= n; i++)
+    for (int i = 0; i < n; i++)
     {
       this.cache.put(i, new HashMap<K,CacheItem<K,V>>(m));
     }
@@ -60,7 +60,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
       System.out.println("Invalid method " + function + " used as replacement algorithm.");
     }
     // initialize n blocks
-    for (int i = 1; i <= n; i++)
+    for (int i = 0; i < n; i++)
     {
       this.cache.put(i, new HashMap<K,CacheItem<K,V>>(m));
     }
@@ -88,19 +88,30 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    * @brief Retrieves a value from the cache by a given key
    * @return V Value corresponding to given key
    */
-  public V get(K key)
+  public CacheItem get(K key)
   {
     // get block to search
     int index = this.getHash(key);
 
-    // get entry from block
-    HashMap<K, CacheItem<K,V>> block = this.cache.get(index);
-    CacheItem<K,V> entry = block.get(key);
-    if (entry != null)
+    if (index >= N_sets || index < 0)
+    {
+      return retrieveFromDB(key);
+    }
+
+    System.out.println("GET INDEX: " + index);
+
+    try
+    {
+      // get entry from block
+      HashMap<K, CacheItem<K,V>> block = this.cache.get(index);
+      CacheItem<K,V> entry = block.get(key);
+      return entry;
+    }
+    catch (NullPointerException e)
     {
       System.out.println("No such value with the given key.");
+      return retrieveFromDB(key);
     }
-    return entry.getValue();
   }
 
   /**
@@ -113,7 +124,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   {
     CacheItem<K,V> entry = new CacheItem<K,V>(key, value);
     int index = this.getHash(key);
-    System.out.println("INDEX: " + index);
+    System.out.println("SET INDEX: " + index);
     HashMap<K, CacheItem<K,V>> block = this.cache.get(index);
     if (block.size() > this.M_blocks)
     {
@@ -134,8 +145,14 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   public boolean delete(K key)
   {
     int index = this.getHash(key);
-    V prevEntry = this.cache.get(index).get(key).getValue();
-    if (this.cache.get(index).remove(key) == prevEntry)
+    System.out.println("DELETE INDEX: " + index);
+    CacheItem prevEntry = this.cache.get(index).get(key);
+    CacheItem deletedEntry = this.cache.get(index).remove(key);
+
+    System.out.println("REMOVED: " + deletedEntry.getValue());
+    System.out.println("ACTUAL: " + prevEntry.getValue());
+
+    if (deletedEntry.getValue() == prevEntry.getValue())
     {
       return true;
     }
@@ -145,9 +162,9 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   * @brief Retrieves key-value pairs from the cache by the given keys
   * @return HashMap<K,V> collection
   */
-  public HashMap<K,V> getCollection(K[] keys)
+  public HashMap<K,CacheItem> getCollection(K[] keys)
   {
-    HashMap<K,V> collection = new HashMap<K,V>();
+    HashMap<K,CacheItem> collection = new HashMap<K,CacheItem>();
     for (int i = 0; i < keys.length; i++)
     {
       collection.put(keys[i], this.get(keys[i]));
@@ -195,7 +212,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public void LRU(int index)
   {
-    CacheItem<K,V> least = new CacheItem<K,V>();
+    CacheItem<K,V> least = new CacheItem<K,V>(null,null);
     for (Map.Entry<K, CacheItem<K,V>> entry : this.cache.get(index).entrySet())
     {
       CacheItem<K,V> curr = entry.getValue();
@@ -212,7 +229,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public void MRU(int index)
   {
-    CacheItem<K,V> recent = new CacheItem<K,V>();
+    CacheItem<K,V> recent = new CacheItem<K,V>(null,null);
 
     for (Map.Entry<K, CacheItem<K,V>> entry : this.cache.get(index).entrySet())
     {
@@ -288,48 +305,9 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     }
   }
 
-  private class CacheItem<K,V>
+  private CacheItem retrieveFromDB(K key)
   {
-    private long timestamp;
-    private K key;
-    private V value;
-
-    public CacheItem()
-    {
-    }
-
-    public CacheItem(K key, V value)
-    {
-      this.key = key;
-      this.value = value;
-      this.timestamp = this.getCurrentTime();
-    }
-
-    public CacheItem(K key, V value, long timestamp)
-    {
-      this.key = key;
-      this.value = value;
-      this.timestamp = timestamp;
-    }
-
-    public long getCurrentTime()
-    {
-      Date date = new Date(System.currentTimeMillis());
-      return date.getTime();
-    }
-
-    public V getValue()
-    {
-      return this.value;
-    }
-    public K getKey()
-    {
-      return this.key;
-    }
-    public long getTimestamp()
-    {
-      return this.timestamp;
-    }
-
+    CacheItem<K,V> dummyItem = new CacheItem<K,V>(null,null);
+    return dummyItem;
   }
 }

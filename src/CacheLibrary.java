@@ -9,7 +9,7 @@ public interface CacheLibrary<K,V>
    * @brief Retrieves a value from the cache by a given key
    * @return V Value corresponding to given key
    */
-  public V get(K key);
+  public CacheItem get(K key);
 
   /**
    * @brief Inserts a key-value pair into the cache
@@ -30,7 +30,7 @@ public interface CacheLibrary<K,V>
   * @brief Retrieves key-value pairs from the cache by the given keys
   * @return HashMap<K,V> collection
   */
-  public HashMap<K,V> getCollection(K[] keys);
+  public HashMap<K,CacheItem> getCollection(K[] keys);
 
  /**
   * @brief Inserts key-value pairs into the cache
