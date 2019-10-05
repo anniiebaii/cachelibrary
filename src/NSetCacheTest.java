@@ -108,21 +108,11 @@ public class NSetCacheTest
     cache.set(2, "Hello Two");
     cache.set(3, "Hello Three");
 
-    // Integer[] keys = {1, 2, 3};
-    // cache.deleteCollection(keys);
-    // boolean fail;
-    // try
-    // {
-    //   fail = false;
-    //   assertEquals("Hello One", cache.get(1).getValue());
-    //   assertEquals("Hello Two", cache.get(2).getValue());
-    //   assertEquals("Hello Three", cache.get(3).getValue());
-    // }
-    // catch (NullPointerException e)
-    // {
-    //   fail = true;
-    // }
-    // assertTrue(fail);
+    Integer[] keys = {1, 2, 3};
+    assertTrue(cache.deleteCollection(keys));
+    assertNull(cache.get(1));
+    assertNull(cache.get(2));
+    assertNull(cache.get(3));
   }
 
   @Test
@@ -143,15 +133,37 @@ public class NSetCacheTest
   @Test
   public void test_LRU()
   {
-    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 2, 1);
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, "LRU");
     cache.set(1, "First");
     cache.set(2, "Second");
+    cache.set(3, "Third");
+
+    // check that First is deleted
+    assertNull(cache.get(1));
+    // check that Second is not deleted
+    assertNotNull(cache.get(2));
+    assertEquals("Second", cache.get(2).getValue());
+    // check that Third is inserted
+    assertNotNull(cache.get(3));
+    assertEquals("Third", cache.get(3).getValue());
   }
 
   @Test
   public void test_MRU()
   {
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, "MRU");
+    cache.set(1, "First");
+    cache.set(2, "Second");
+    cache.set(3, "Third");
 
+    // check that Second is deleted
+    assertNull(cache.get(2));
+    // check that First is not deleted
+    assertNotNull(cache.get(1));
+    assertEquals("First", cache.get(1).getValue());
+    // check that Third is inserted
+    assertNotNull(cache.get(3));
+    assertEquals("Third", cache.get(3).getValue());
   }
 
   @Test

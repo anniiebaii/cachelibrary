@@ -15,6 +15,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   private final int N_sets;
   private final int M_blocks;
   private final String name;
+  private final String method;
   private Method replacementAlgorithm;
   private final HashMap<Integer, HashMap<K,CacheItem>> cache = new HashMap<Integer, HashMap<K,CacheItem>>();
 
@@ -29,6 +30,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     this.name = name;
     this.N_sets = n;
     this.M_blocks = m;
+    this.method = "LRU";
     // initialize n blocks
     for (int i = 0; i < n; i++)
     {
@@ -48,17 +50,18 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     this.name = name;
     this.N_sets = n;
     this.M_blocks = m;
-    try
-    {
-      // @TODO throwing exception here for LRU
-      Method method = this.getClass().getMethod(function, Integer.class);
-      this.replacementAlgorithm = method;
-    }
-    catch (NoSuchMethodException e)
-    {
-      // stop object instantiation
-      System.out.println("Invalid method " + function + " used as replacement algorithm.");
-    }
+    this.method = function;
+    // try
+    // {
+    //   // @TODO throwing exception here for LRU
+    //   Method method = this.getClass().getMethod(function, Integer.class);
+    //   this.replacementAlgorithm = method;
+    // }
+    // catch (NoSuchMethodException e)
+    // {
+    //   // stop object instantiation
+    //   System.out.println("Invalid method " + function + " used as replacement algorithm.");
+    // }
     // initialize n blocks
     for (int i = 0; i < n; i++)
     {
@@ -71,16 +74,17 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     this.name = name;
     this.N_sets = n;
     this.M_blocks = m;
-    try
-    {
-      Method method = NSetCache.class.getDeclaredMethod(function, Integer.class);
-      this.replacementAlgorithm = method;
-    }
-    catch (NoSuchMethodException e)
-    {
-      // stop object instantiation
-      System.out.println("Invalid method used as replacement algorithm.");
-    }
+    this.method = function;
+    // try
+    // {
+    //   Method method = NSetCache.class.getDeclaredMethod(function, Integer.class);
+    //   this.replacementAlgorithm = method;
+    // }
+    // catch (NoSuchMethodException e)
+    // {
+    //   // stop object instantiation
+    //   System.out.println("Invalid method used as replacement algorithm.");
+    // }
     // verify the loadedMap satisfies the N set conditions
   }
 
@@ -90,14 +94,18 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public CacheItem get(K key)
   {
-    // get block to search
+    // get block index to search
     int index = this.getHash(key);
 
     System.out.println("NEW GET INDEX: " + index);
 
-      // get entry from block
+      // get block
       HashMap<K, CacheItem> block = this.cache.get(index);
+
+      // get entry from block
       CacheItem entry = block.get(key);
+
+      // if no entry corresponds to given key
       if (entry == null)
       {
         System.out.println("No such value with the given key.");
@@ -118,8 +126,10 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     int index = this.getHash(key);
     System.out.println("SET INDEX: " + index);
     HashMap<K, CacheItem> block = this.cache.get(index);
-    if (block.size() > this.M_blocks)
+    System.out.println("BLOCK SIZE: " + block.size());
+    if (block.size() >= this.M_blocks)
     {
+      System.out.println("EVICTING INDEX: " + index);
       eviction(index);
     }
     if (this.cache.get(index).put(key, entry) == null)
@@ -138,6 +148,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   {
     int index = this.getHash(key);
     System.out.println("DELETE INDEX: " + index);
+    System.out.println("DELETE KEY: " + key);
     CacheItem prevEntry = this.cache.get(index).get(key);
     CacheItem deletedEntry = this.cache.get(index).remove(key);
 
@@ -159,7 +170,11 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     HashMap<K,CacheItem> collection = new HashMap<K,CacheItem>();
     for (int i = 0; i < keys.length; i++)
     {
-      collection.put(keys[i], this.get(keys[i]));
+      CacheItem curr = this.get(keys[i]);
+      if (curr != null)
+      {
+        collection.put(keys[i], curr);
+      }
     }
     return collection;
   }
@@ -213,7 +228,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
         least = curr;
       }
     }
-    this.cache.get(index).remove(least.getKey());
+    this.delete((K)least.getKey());
   }
 
   /**
@@ -222,16 +237,21 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   public void MRU(int index)
   {
     CacheItem recent = new CacheItem(null,null);
+    boolean first = false;
 
     for (Map.Entry<K, CacheItem> entry : this.cache.get(index).entrySet())
     {
       CacheItem curr = entry.getValue();
-      if (curr.getTimestamp() < recent.getTimestamp())
+      if (first == false)
+      {
+        recent = curr;
+      }
+      else if (curr.getTimestamp() > recent.getTimestamp())
       {
         recent = curr;
       }
     }
-    this.cache.get(index).remove(recent.getKey());
+    this.delete((K)recent.getKey());
   }
 
   /**
@@ -286,14 +306,27 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public void eviction(int index)
   {
-    try
+    // try
+    // {
+    //   // this.setReplacementAlgorithm("tesst"); // test, can be removed
+    //   this.replacementAlgorithm.invoke(this, index);
+    // }
+    // catch (Exception e)
+    // {
+    //   System.out.println("Replacement algorithm not declared in cache object's class.");
+    // }
+    switch (this.method)
     {
-      // this.setReplacementAlgorithm("tesst"); // test, can be removed
-      this.replacementAlgorithm.invoke(this, index);
-    }
-    catch (Exception e)
-    {
-      System.out.println("Replacement algorithm not declared in cache object's class.");
+      case "LRU":
+        this.LRU(index);
+        break;
+      case "MRU":
+        this.MRU(index);
+
+        break;
+      case "custom":
+        this.customReplacementAlgorithm(index);
+        break;
     }
   }
 
