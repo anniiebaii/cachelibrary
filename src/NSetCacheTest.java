@@ -12,6 +12,7 @@ import java.security.*;
 import java.lang.reflect.*;
 import src.NSetCache;
 import src.CacheItem;
+import java.util.concurrent.TimeUnit;
 
 public class NSetCacheTest
 {
@@ -28,18 +29,20 @@ public class NSetCacheTest
   public void test_basicConstructor()
   {
     NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
+
     // assert private member variables are properly set
     try
     {
       Field name = cache.getClass().getDeclaredField("name");
-      name.setAccessible(true);
       Field N_sets = cache.getClass().getDeclaredField("N_sets");
-      N_sets.setAccessible(true);
       Field M_blocks = cache.getClass().getDeclaredField("M_blocks");
-      M_blocks.setAccessible(true);
       Field map = cache.getClass().getDeclaredField("cache");
-      map.setAccessible(true);
       Field method = cache.getClass().getDeclaredField("method");
+
+      name.setAccessible(true);
+      N_sets.setAccessible(true);
+      M_blocks.setAccessible(true);
+      map.setAccessible(true);
       method.setAccessible(true);
 
       assertEquals("cache", name.get(cache));
@@ -47,7 +50,7 @@ public class NSetCacheTest
       assertEquals(2, M_blocks.get(cache));
       HashMap<Integer, HashMap<Integer, CacheItem>> cachedBlocks = (HashMap<Integer, HashMap<Integer, CacheItem>>)map.get(cache);
       assertEquals(5, cachedBlocks.size());
-      assertEquals("LRU", method.get(cache));
+      assertEquals(NSetCache.LEAST_RECENT, method.get(cache));
     }
     catch (NoSuchFieldException | IllegalAccessException e)
     {
@@ -55,11 +58,10 @@ public class NSetCacheTest
     }
   }
 
-  // @Test(expected = NoSuchMethodException.class)
-  @Test
+  @Test (expected = IllegalArgumentException.class)
   public void test_defineInvalidAlg()
   {
-
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2, "trash");
   }
 
   @Test
@@ -77,7 +79,9 @@ public class NSetCacheTest
   public void test_set()
   {
     NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
-    cache.set(1, "Hello World");
+    assertTrue(cache.set(1, "Hello World"));
+
+    // check that values are actually set
     try
     {
       Field map = cache.getClass().getDeclaredField("cache");
@@ -87,6 +91,9 @@ public class NSetCacheTest
       int index = cache.getHash(1);
       assertEquals("Hello World", cachedBlocks.get(index).get(1).getValue());
 
+      cachedBlocks = (HashMap<Integer, HashMap<Integer, CacheItem>>)map.get(cache);
+      assertFalse(cache.set(1, "Replace me!"));
+      assertEquals("Replace me!", cachedBlocks.get(index).get(1).getValue());
     }
     catch (NoSuchFieldException | IllegalAccessException e)
     {
@@ -104,6 +111,11 @@ public class NSetCacheTest
     boolean result = cache.delete(1);
     assertTrue(result);
 
+    // check that it is not retrievable
+    CacheItem nullEntry = cache.get(1);
+    assertNull(nullEntry);
+
+    // check that it is actually deleted
     try
     {
       Field map = cache.getClass().getDeclaredField("cache");
@@ -117,9 +129,6 @@ public class NSetCacheTest
     {
       assertTrue(false);
     }
-
-    CacheItem nullEntry = cache.get(1);
-    assertNull(nullEntry);
   }
 
   @Test
@@ -147,7 +156,7 @@ public class NSetCacheTest
     data.put("3", "Hello Three");
     cache.setCollection(data);
 
-    // verify actually set in cache
+    // check that it is actually set
     try
     {
       Field map = cache.getClass().getDeclaredField("cache");
@@ -167,7 +176,8 @@ public class NSetCacheTest
       assertTrue(false);
     }
 
-    System.out.println("new obj");
+    // testing with sample object class
+
     NSetCache<SampleObject, String> ObjCache = new NSetCache<SampleObject, String>("ObjCache", 5, 2);
     SampleObject one = new SampleObject("Hello One");
     SampleObject two = new SampleObject("Hello Two");
@@ -226,13 +236,15 @@ public class NSetCacheTest
     cache.setCollection(data);
     cache.clear();
 
-    // @TODO reflect
+    // test that cache blocks are clear, but empty N sets remain
     try
     {
       Field map = cache.getClass().getDeclaredField("cache");
       map.setAccessible(true);
+
       HashMap<Integer, HashMap<Integer, CacheItem>> cachedBlocks = (HashMap<Integer, HashMap<Integer, CacheItem>>)map.get(cache);
       assertEquals(5, cachedBlocks.size());
+
       int one_index = cache.getHash(1);
       int two_index = cache.getHash(2);
       int three_index = cache.getHash(3);
@@ -250,16 +262,22 @@ public class NSetCacheTest
   @Test
   public void test_LRU()
   {
-    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, "LRU");
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, NSetCache.LEAST_RECENT);
     cache.set(1, "First");
     cache.set(2, "Second");
+    try
+    {
+      TimeUnit.SECONDS.sleep(2);
+    }
+    catch (InterruptedException e)
+    {}
+    cache.get(1);
     cache.set(3, "Third");
-
-    // check that First is deleted
-    assertNull(cache.get(1));
-    // check that Second is not deleted
-    assertNotNull(cache.get(2));
-    assertEquals("Second", cache.get(2).getValue());
+    // check that Second is deleted
+    assertNull(cache.get(2));
+    // check that First is not deleted
+    assertNotNull(cache.get(1));
+    assertEquals("First", cache.get(1).getValue());
     // check that Third is inserted
     assertNotNull(cache.get(3));
     assertEquals("Third", cache.get(3).getValue());
@@ -268,7 +286,7 @@ public class NSetCacheTest
   @Test
   public void test_MRU()
   {
-    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, "MRU");
+    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, NSetCache.MOST_RECENT);
     cache.set(1, "First");
     cache.set(2, "Second");
     cache.set(3, "Third");
@@ -284,21 +302,10 @@ public class NSetCacheTest
   }
 
   @Test
-  public void test_customReplacementAlgorithm()
-  {
-
-  }
-
-  @Test
-  public void test_eviction()
-  {
-
-  }
-
-  @Test
   public void test_getHash()
   {
-    NSetCache<Object,Integer> cache = new NSetCache<Object,Integer>("cache", 5, 1);
+    int N_sets = 5;
+    NSetCache<Object,Integer> cache = new NSetCache<Object,Integer>("cache", N_sets, 1);
     // testing hash for different types
     SampleObject obj1 = new SampleObject("1");
     String obj2 = "Hello World";
@@ -308,12 +315,14 @@ public class NSetCacheTest
     SampleObject obj6 = new SampleObject("1");
     String[] obj7 = {"1", "2", "3"};
 
-    assertTrue(cache.getHash(obj1) < 5 && cache.getHash(obj1) >= 0);
+    assertTrue(cache.getHash(obj1) < N_sets && cache.getHash(obj1) >= 0);
+    assertTrue(cache.getHash(obj2) < N_sets && cache.getHash(obj2) >= 0);
+    assertTrue(cache.getHash(obj3) < N_sets && cache.getHash(obj3) >= 0);
+    assertTrue(cache.getHash(obj4) < N_sets && cache.getHash(obj4) >= 0);
+    assertTrue(cache.getHash(obj5) < N_sets && cache.getHash(obj5) >= 0);
+    // check that hash for different object references, but equal by the equals() function
+    // returns equal hash values for this cache
     assertTrue(cache.getHash(obj1) == cache.getHash(obj6));
-    assertTrue(cache.getHash(obj2) < 5 && cache.getHash(obj2) >= 0);
-    assertTrue(cache.getHash(obj3) < 5 && cache.getHash(obj3) >= 0);
-    assertTrue(cache.getHash(obj4) < 5 && cache.getHash(obj4) >= 0);
-    assertTrue(cache.getHash(obj5) < 5 && cache.getHash(obj5) >= 0);
   }
 
 /**
@@ -350,7 +359,7 @@ public class NSetCacheTest
       }
       return false;
     }
-    
+
     @Override
     public int hashCode()
     {

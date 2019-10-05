@@ -8,6 +8,9 @@ import java.math.BigInteger;
 
 public class NSetCache<K,V> implements CacheLibrary<K,V>
 {
+  public static final String LEAST_RECENT = "LRU";
+  public static final String MOST_RECENT = "MRU";
+  public static final String USER_DEFINED = "USER DEFINED";
   // data layer of Cache
   // HashMap: Integer => HashMap
   //                            K => V
@@ -25,12 +28,17 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    * @param Integer n The number of sets
    * @param Integer m The number of entries per set
    */
-  public NSetCache(String name, Integer n, Integer m)
+  public NSetCache(String name, Integer n, Integer m) throws IllegalArgumentException
   {
+    if (n <= 0 || m <= 0)
+    {
+      throw new IllegalArgumentException("Invalid number of sets or entries per set");
+    }
     this.name = name;
     this.N_sets = n;
     this.M_blocks = m;
-    this.method = "LRU";
+    // default replacement algorithm is LRU
+    this.method = NSetCache.LEAST_RECENT;
     // initialize n blocks
     for (int i = 0; i < n; i++)
     {
@@ -45,47 +53,26 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    * @param Integer m The number of entries per set
    * @param String function The name of the algorithm to invoke when the cache is full
    */
-  public NSetCache(String name, Integer n, Integer m, String function)
+  public NSetCache(String name, Integer n, Integer m, String function) throws IllegalArgumentException
   {
+    if (n <= 0 || m <= 0)
+    {
+      throw new IllegalArgumentException("Invalid number of sets or entries per set");
+    }
+    if (function != this.MOST_RECENT && function != this.LEAST_RECENT && function != this.USER_DEFINED)
+    {
+      throw new IllegalArgumentException("Invalid replacement algorithm specified.");
+    }
     this.name = name;
     this.N_sets = n;
     this.M_blocks = m;
     this.method = function;
-    // try
-    // {
-    //   // @TODO throwing exception here for LRU
-    //   Method method = this.getClass().getMethod(function, Integer.class);
-    //   this.replacementAlgorithm = method;
-    // }
-    // catch (NoSuchMethodException e)
-    // {
-    //   // stop object instantiation
-    //   System.out.println("Invalid method " + function + " used as replacement algorithm.");
-    // }
+
     // initialize n blocks
     for (int i = 0; i < n; i++)
     {
       this.cache.put(i, new HashMap<K,CacheItem>(m));
     }
-  }
-
-  public NSetCache(String name, Integer n, Integer m, String function, HashMap<Integer, HashMap<K,CacheItem>> loadedMap)
-  {
-    this.name = name;
-    this.N_sets = n;
-    this.M_blocks = m;
-    this.method = function;
-    // try
-    // {
-    //   Method method = NSetCache.class.getDeclaredMethod(function, Integer.class);
-    //   this.replacementAlgorithm = method;
-    // }
-    // catch (NoSuchMethodException e)
-    // {
-    //   // stop object instantiation
-    //   System.out.println("Invalid method used as replacement algorithm.");
-    // }
-    // verify the loadedMap satisfies the N set conditions
   }
 
   /**
@@ -97,20 +84,20 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     // get block index to search
     int index = this.getHash(key);
 
-    System.out.println("NEW GET INDEX: " + index);
+    // get block
+    HashMap<K, CacheItem> block = this.cache.get(index);
 
-      // get block
-      HashMap<K, CacheItem> block = this.cache.get(index);
+    // get entry from block
+    CacheItem entry = block.get(key);
 
-      // get entry from block
-      CacheItem entry = block.get(key);
-
-      // if no entry corresponds to given key
-      if (entry == null)
-      {
-        System.out.println("No such value with the given key.");
-        return this.retrieveFromDB(key);
-      }
+    // if no entry corresponds to given key
+    if (entry == null)
+    {
+      System.out.println("No such value with the given key.");
+      return this.retrieveFromDB(key);
+    }
+    // update timestamp
+    this.cache.get(index).get(key).updateTimestamp();
     return entry;
   }
 
@@ -124,19 +111,20 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   {
     CacheItem entry = new CacheItem(key, value);
     int index = this.getHash(key);
-    System.out.println("SET INDEX: " + index);
     HashMap<K, CacheItem> block = this.cache.get(index);
-    System.out.println("BLOCK SIZE: " + block.size());
+
     if (block.size() == this.M_blocks)
     {
-      System.out.println("EVICTING INDEX: " + index);
       eviction(index);
     }
+
     if (this.cache.get(index).put(key, entry) == null)
     {
+      // new key-value pair
       return true;
     }
     return false;
+    // else, it is existing key, new CacheItem entry created w/ latest timestamp replaces it
   }
 
   /**
@@ -147,13 +135,8 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   public boolean delete(K key)
   {
     int index = this.getHash(key);
-    System.out.println("DELETE INDEX: " + index);
-    System.out.println("DELETE KEY: " + key);
     CacheItem prevEntry = this.cache.get(index).get(key);
     CacheItem deletedEntry = this.cache.get(index).remove(key);
-
-    System.out.println("REMOVED: " + deletedEntry.getValue());
-    System.out.println("ACTUAL: " + prevEntry.getValue());
 
     if (deletedEntry.getValue() == prevEntry.getValue())
     {
@@ -262,7 +245,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    * @brief Client usage function intended to be overriden with a custom replacement algorithmm
    * @param int Index The index of the block to evict an entry from
    */
-  public void customReplacementAlgorithm(int index)
+  public void userDefinedReplacementAlgorithm(int index)
   {
     // calls default replacement algorithm LRU
     this.LRU(index);
@@ -298,7 +281,6 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
         {
           hashValue = hashValue * -1;
         }
-        System.out.println("HASHED: " + hashValue);
         return hashValue;
       }
 	    catch (NoSuchAlgorithmException e)
@@ -314,39 +296,31 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public void eviction(int index)
   {
-    // try
-    // {
-    //   this.replacementAlgorithm.invoke(this, this.method, Integer.class);
-    // }
-    // catch (Exception e)
-    // {
-    //   System.out.println("Replacement algorithm not declared in cache object's class.");
-    // }
-    // @TODO: fix exception thrown here
+    System.out.println("EVICTED INDEX: " + index);
     switch (this.method)
     {
-      case "LRU":
+      case NSetCache.LEAST_RECENT:
         this.LRU(index);
         break;
-      case "MRU":
+      case NSetCache.MOST_RECENT:
         this.MRU(index);
-
         break;
-      case "custom":
-        this.customReplacementAlgorithm(index);
+      case NSetCache.USER_DEFINED:
+        this.userDefinedReplacementAlgorithm(index);
         break;
+      default:
+        this.LRU(index);
     }
   }
 
   /**
-   * @brief Returns a dummy CacheItem object to users if it is a cache miss.
+   * @brief Returns a fake CacheItem object to users if it is a cache miss.
    * @note It is expected that users @Override this with their own database implementation
    * @param  key [description]
    * @return     [description]
    */
   public CacheItem retrieveFromDB(K key)
   {
-    System.out.println("RETRIEVING DUMMY DB");
     return null;
   }
 }

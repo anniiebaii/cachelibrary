@@ -58,6 +58,10 @@ public class CacheItem
   {
     return this.timestamp;
   }
+  public void updateTimestamp()
+  {
+    this.timestamp = this.getCurrentTime();
+  }
 
   public boolean empty()
   {
