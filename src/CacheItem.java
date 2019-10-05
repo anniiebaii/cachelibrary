@@ -3,37 +3,37 @@ import java.io.*;
 import java.util.*;
 import java.lang.*;
 
-public class CacheItem<K,V>
+public class CacheItem
 {
   private long timestamp;
-  private K key;
-  private V value;
-  private boolean isEmpty = true;
+  private Object key;
+  private Object value;
+  public boolean isEmpty;
 
-  public CacheItem(K key, V value)
+  public CacheItem(Object key, Object value)
   {
-    if (value != null && key != null)
+    if (value == null)
     {
-      this.isEmpty = false;
+      this.isEmpty = true;
     }
     else
     {
-      this.isEmpty = true;
+      this.isEmpty = false;
     }
     this.key = key;
     this.value = value;
     this.timestamp = this.getCurrentTime();
   }
 
-  public CacheItem(K key, V value, long timestamp)
+  public CacheItem(Object key, Object value, long timestamp)
   {
-    if (value != null && key != null)
+    if (value == null)
     {
-      this.isEmpty = false;
+      this.isEmpty = true;
     }
     else
     {
-      this.isEmpty = true;
+      this.isEmpty = false;
     }
     this.key = key;
     this.value = value;
@@ -46,11 +46,11 @@ public class CacheItem<K,V>
     return date.getTime();
   }
 
-  public V getValue()
+  public Object getValue()
   {
     return this.value;
   }
-  public K getKey()
+  public Object getKey()
   {
     return this.key;
   }
@@ -59,8 +59,9 @@ public class CacheItem<K,V>
     return this.timestamp;
   }
 
-  public boolean isEmpty()
+  public boolean empty()
   {
+    System.out.println("is empty check");
     return this.isEmpty;
   }
 

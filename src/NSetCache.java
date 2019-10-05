@@ -16,7 +16,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   private final int M_blocks;
   private final String name;
   private Method replacementAlgorithm;
-  private final HashMap<Integer, HashMap<K,CacheItem<K,V>>> cache = new HashMap<Integer, HashMap<K,CacheItem<K,V>>>();
+  private final HashMap<Integer, HashMap<K,CacheItem>> cache = new HashMap<Integer, HashMap<K,CacheItem>>();
 
   /**
    * @brief Basic Constructor
@@ -32,7 +32,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     // initialize n blocks
     for (int i = 0; i < n; i++)
     {
-      this.cache.put(i, new HashMap<K,CacheItem<K,V>>(m));
+      this.cache.put(i, new HashMap<K,CacheItem>(m));
     }
   }
 
@@ -62,11 +62,11 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     // initialize n blocks
     for (int i = 0; i < n; i++)
     {
-      this.cache.put(i, new HashMap<K,CacheItem<K,V>>(m));
+      this.cache.put(i, new HashMap<K,CacheItem>(m));
     }
   }
 
-  public NSetCache(String name, Integer n, Integer m, String function, HashMap<Integer, HashMap<K,CacheItem<K,V>>> loadedMap)
+  public NSetCache(String name, Integer n, Integer m, String function, HashMap<Integer, HashMap<K,CacheItem>> loadedMap)
   {
     this.name = name;
     this.N_sets = n;
@@ -93,25 +93,17 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     // get block to search
     int index = this.getHash(key);
 
-    if (index >= N_sets || index < 0)
-    {
-      return retrieveFromDB(key);
-    }
+    System.out.println("NEW GET INDEX: " + index);
 
-    System.out.println("GET INDEX: " + index);
-
-    try
-    {
       // get entry from block
-      HashMap<K, CacheItem<K,V>> block = this.cache.get(index);
-      CacheItem<K,V> entry = block.get(key);
-      return entry;
-    }
-    catch (NullPointerException e)
-    {
-      System.out.println("No such value with the given key.");
-      return retrieveFromDB(key);
-    }
+      HashMap<K, CacheItem> block = this.cache.get(index);
+      CacheItem entry = block.get(key);
+      if (entry == null)
+      {
+        System.out.println("No such value with the given key.");
+        return this.retrieveFromDB(key);
+      }
+    return entry;
   }
 
   /**
@@ -122,10 +114,10 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public boolean set(K key, V value)
   {
-    CacheItem<K,V> entry = new CacheItem<K,V>(key, value);
+    CacheItem entry = new CacheItem(key, value);
     int index = this.getHash(key);
     System.out.println("SET INDEX: " + index);
-    HashMap<K, CacheItem<K,V>> block = this.cache.get(index);
+    HashMap<K, CacheItem> block = this.cache.get(index);
     if (block.size() > this.M_blocks)
     {
       eviction(index);
@@ -212,10 +204,10 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public void LRU(int index)
   {
-    CacheItem<K,V> least = new CacheItem<K,V>(null,null);
-    for (Map.Entry<K, CacheItem<K,V>> entry : this.cache.get(index).entrySet())
+    CacheItem least = new CacheItem(null,null);
+    for (Map.Entry<K, CacheItem> entry : this.cache.get(index).entrySet())
     {
-      CacheItem<K,V> curr = entry.getValue();
+      CacheItem curr = entry.getValue();
       if (curr.getTimestamp() < least.getTimestamp())
       {
         least = curr;
@@ -229,11 +221,11 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public void MRU(int index)
   {
-    CacheItem<K,V> recent = new CacheItem<K,V>(null,null);
+    CacheItem recent = new CacheItem(null,null);
 
-    for (Map.Entry<K, CacheItem<K,V>> entry : this.cache.get(index).entrySet())
+    for (Map.Entry<K, CacheItem> entry : this.cache.get(index).entrySet())
     {
-      CacheItem<K,V> curr = entry.getValue();
+      CacheItem curr = entry.getValue();
       if (curr.getTimestamp() < recent.getTimestamp())
       {
         recent = curr;
@@ -311,11 +303,9 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    * @param  key [description]
    * @return     [description]
    */
-  private CacheItem retrieveFromDB(K key)
+  public CacheItem retrieveFromDB(K key)
   {
-    CacheItem<K,V> dummyItem = new CacheItem<K,V>(null, null);
-    // dummyItem is theoretically from DB
-    // insert new entry into cache
-    return dummyItem;
+    System.out.println("RETRIEVING DUMMY DB");
+    return null;
   }
 }
