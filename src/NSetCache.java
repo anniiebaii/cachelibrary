@@ -127,7 +127,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     System.out.println("SET INDEX: " + index);
     HashMap<K, CacheItem> block = this.cache.get(index);
     System.out.println("BLOCK SIZE: " + block.size());
-    if (block.size() >= this.M_blocks)
+    if (block.size() == this.M_blocks)
     {
       System.out.println("EVICTING INDEX: " + index);
       eviction(index);
@@ -211,7 +211,11 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public void clear()
   {
-    this.cache.clear();
+    for (int i = 0; i < N_sets; i++)
+    {
+      // clear blocks in sets
+      this.cache.get(i).clear();
+    }
   }
 
   /**
@@ -266,13 +270,15 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
 
   /**
    * @brief Retrieves the hashCode based on the key provided
+   * @Note hashCode and equals function must be overridden for user created objects to ensure equality comparison for
+   * different object instantiations with same member variables. Otherwise, getHash may differ for supposedly "equal" objects
    * @param  K key [description]
    * @return Integer The index of the block in which this key is mapped to
    */
   public int getHash(K key)
   {
-      int hash = Objects.hash(key);
-      String hashString = Integer.toString(hash);
+      int hash = key.hashCode();
+      String hashString = Objects.toString(key);
 
       try {
         MessageDigest md = MessageDigest.getInstance("MD5");
@@ -292,12 +298,14 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
         {
           hashValue = hashValue * -1;
         }
+        System.out.println("HASHED: " + hashValue);
         return hashValue;
       }
 	    catch (NoSuchAlgorithmException e)
 	    {
         // log an error
-          return 0;
+        e.printStackTrace();
+        return 0;
 	    }
   }
 
@@ -308,13 +316,13 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   {
     // try
     // {
-    //   // this.setReplacementAlgorithm("tesst"); // test, can be removed
-    //   this.replacementAlgorithm.invoke(this, index);
+    //   this.replacementAlgorithm.invoke(this, this.method, Integer.class);
     // }
     // catch (Exception e)
     // {
     //   System.out.println("Replacement algorithm not declared in cache object's class.");
     // }
+    // @TODO: fix exception thrown here
     switch (this.method)
     {
       case "LRU":
