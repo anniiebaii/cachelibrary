@@ -1,6 +1,6 @@
 <project>
   <path id="project.class.path">
-    <pathelement location="build"/>
+    <pathelement location="build/src"/>
     <pathelement location="lib/junit-4.8.2.jar"/>
   </path>
 
