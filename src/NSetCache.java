@@ -59,7 +59,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     {
       throw new IllegalArgumentException("Invalid number of sets or entries per set");
     }
-    if (function != this.MOST_RECENT && function != this.LEAST_RECENT && function != this.USER_DEFINED)
+    if (function != NSetCache.MOST_RECENT && function != NSetCache.LEAST_RECENT && function != NSetCache.USER_DEFINED)
     {
       throw new IllegalArgumentException("Invalid replacement algorithm specified.");
     }
@@ -93,7 +93,6 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     // if no entry corresponds to given key
     if (entry == null)
     {
-      System.out.println("No such value with the given key.");
       return this.retrieveFromDB(key);
     }
     // update timestamp
@@ -260,10 +259,13 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public int getHash(K key)
   {
+      // get object's hashCode
       int hash = key.hashCode();
+      // convert to a string for MD5
       String hashString = Objects.toString(key);
 
-      try {
+      try
+      {
         MessageDigest md = MessageDigest.getInstance("MD5");
   	    byte[] messageDigest = md.digest(hashString.getBytes());
 
@@ -296,7 +298,6 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public void eviction(int index)
   {
-    System.out.println("EVICTED INDEX: " + index);
     switch (this.method)
     {
       case NSetCache.LEAST_RECENT:

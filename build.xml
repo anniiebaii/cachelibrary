@@ -18,6 +18,8 @@
     <delete>
       <fileset dir="build/src" includes="*.class"/>
       <fileset dir="build" includes="*.jar"/>
+      <fileset dir="build" includes="*.class"/>
+      <fileset dir="lib" includes="NSetCache.jar"/>
     </delete>
   </target>
 
@@ -27,10 +29,14 @@
   </target>
 
   <target name="jar" depends="compile" description="create a jar file">
-    <jar destfile="build/NSetCache.jar">
-      <fileset dir="build" includes="*.class"/>
+    <jar destfile="lib/NSetCache.jar">
+      <fileset dir="build/src">
+        <include name="NSetCache.class"/>
+        <include name="CacheLibrary.class"/>
+        <include name="CacheItem.class"/>
+      </fileset>
       <manifest>
-	<attribute name="Main-Class" value="NSetcache"/>
+	       <attribute name="Main-Class" value="NSetCache"/>
       </manifest>
     </jar>
   </target>

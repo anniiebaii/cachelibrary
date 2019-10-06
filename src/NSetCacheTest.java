@@ -267,7 +267,7 @@ public class NSetCacheTest
     cache.set(2, "Second");
     try
     {
-      TimeUnit.SECONDS.sleep(2);
+      TimeUnit.SECONDS.sleep(2); // to ensure timestamp is different
     }
     catch (InterruptedException e)
     {}
