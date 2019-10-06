@@ -40,6 +40,15 @@ Compile and use the library by using the following steps:
 4. Execute main file <br>
 `java main`
 
+To compile this project:
+`ant compile` 
+
+To run the unit tests for this project:
+`ant test` 
+
+To clean the project of executables:
+`ant clean` 
+
 ## Data Layer
 
 * The Cache will use a nested HashMap data structure that looks like this:
