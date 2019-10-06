@@ -1,4 +1,3 @@
-package src;
 import java.io.*;
 import java.util.*;
 import java.lang.*;
@@ -49,22 +48,6 @@ public interface CacheLibrary<K,V>
    * @brief Clears all entries from the cache
    */
   public void clear();
-
-  /**
-   * @brief Simple LRU Replacement Algorithm
-   */
-  public void LRU(int index);
-
-  /**
-   * @brief Simple MRU Replacement Algorithm
-   */
-  public void MRU(int index);
-
-  /**
-   * @brief Client usage function intended to be overriden with a custom replacement algorithmm
-   * @param int Index The index of the block to evict an entry from
-   */
-  public void userDefinedReplacementAlgorithm(int index);
 
   /**
    * @brief Evicts key-value pairs when cache is full and an insertion is required

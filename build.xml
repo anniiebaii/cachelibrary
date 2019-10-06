@@ -5,9 +5,9 @@
   </path>
 
   <target name="compile" description="compile the code">
-    <mkdir dir="build" />
+    <mkdir dir="build/src" />
     <javac srcdir="src"
-	   destdir="build"
+	   destdir="build/src"
 	   includeantruntime="false"
 	   debug="true" >
       <classpath refid="project.class.path" />
@@ -24,8 +24,8 @@
   </target>
 
 
-  <target name="run" description="run the main">
-    <java classname="Example" classpath="build"/>
+  <target name="run" depends="compile" description="run the example main">
+    <java classname="Example" classpath="build/src"/>
   </target>
 
   <target name="jar" depends="compile" description="create a jar file">
@@ -35,9 +35,6 @@
         <include name="CacheLibrary.class"/>
         <include name="CacheItem.class"/>
       </fileset>
-      <manifest>
-	       <attribute name="Main-Class" value="NSetCache"/>
-      </manifest>
     </jar>
   </target>
 

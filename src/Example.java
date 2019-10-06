@@ -1,7 +1,6 @@
 import java.io.*;
 import java.util.*;
 import java.lang.*;
-import src.NSetCache;
 
 public class Example
 {
@@ -9,7 +8,6 @@ public class Example
   {
     System.out.println("Using Example");
     NSetCache<Integer,Integer> cache = new NSetCache<Integer,Integer>("cache", 2, 1);
-
     cache.set(1, 2);
 
   }

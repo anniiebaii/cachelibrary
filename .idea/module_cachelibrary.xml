@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_cachelibrary" default="compile.module.cachelibrary">
+  <dirname property="module.cachelibrary.basedir" file="${ant.file.module_cachelibrary}"/>
+  
+  <property name="module.jdk.home.cachelibrary" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.cachelibrary" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.cachelibrary" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.cachelibrary" value="-encoding UTF-8 -source 12 -target 12 ${compiler.args}"/>
+  
+  <property name="cachelibrary.output.dir" value="undefined"/>
+  <property name="cachelibrary.testoutput.dir" value="undefined"/>
+  
+  <path id="cachelibrary.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="cachelibrary.module.production.classpath">
+    <path refid="${module.jdk.classpath.cachelibrary}"/>
+  </path>
+  
+  <path id="cachelibrary.runtime.production.module.classpath"/>
+  
+  <path id="cachelibrary.module.classpath">
+    <path refid="${module.jdk.classpath.cachelibrary}"/>
+  </path>
+  
+  <path id="cachelibrary.runtime.module.classpath"/>
+  
+  
+  <patternset id="excluded.from.module.cachelibrary">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.cachelibrary">
+    <patternset refid="excluded.from.module.cachelibrary"/>
+  </patternset>
+  
+  
+  <target name="compile.module.cachelibrary" depends="compile.module.cachelibrary.production,compile.module.cachelibrary.tests" description="Compile module cachelibrary"/>
+  
+  <target name="compile.module.cachelibrary.production" depends="register.custom.compilers" description="Compile module cachelibrary; production classes"/>
+  
+  <target name="compile.module.cachelibrary.tests" depends="register.custom.compilers,compile.module.cachelibrary.production" description="compile module cachelibrary; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.cachelibrary" description="cleanup module">
+    <delete dir="${cachelibrary.output.dir}"/>
+    <delete dir="${cachelibrary.testoutput.dir}"/>
+  </target>
+</project>

@@ -1,4 +1,3 @@
-package src;
 import java.io.*;
 import java.util.*;
 import java.lang.*;
@@ -11,9 +10,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   public static final String LEAST_RECENT = "LRU";
   public static final String MOST_RECENT = "MRU";
   public static final String USER_DEFINED = "USER DEFINED";
-  // data layer of Cache
-  // HashMap: Integer => HashMap
-  //                            K => V
+
   // private variables
   private final int N_sets;
   private final int M_blocks;
