@@ -1,3 +1,4 @@
+package src;
 import java.io.*;
 import java.util.*;
 import java.lang.*;
@@ -92,6 +93,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     // if no entry corresponds to given key
     if (entry == null)
     {
+      System.out.println("No such value with the given key.");
       return this.retrieveFromDB(key);
     }
     // update timestamp
@@ -294,6 +296,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public void eviction(int index)
   {
+    System.out.println("EVICTED INDEX: " + index);
     switch (this.method)
     {
       case NSetCache.LEAST_RECENT:

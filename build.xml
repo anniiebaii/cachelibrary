@@ -12,12 +12,6 @@
 	   debug="true" >
       <classpath refid="project.class.path" />
     </javac>
-    <javac srcdir="use_case"
-	   destdir="build"
-	   includeantruntime="false"
-	   debug="true" >
-      <classpath refid="project.class.path" />
-    </javac>
   </target>
 
   <target name="clean" description="clean up the project">
@@ -28,15 +22,15 @@
   </target>
 
 
-  <target name="run" depends="compile" description="run the main">
-    <java classname="ExampleUserClass" classpath="build"/>
+  <target name="run" description="run the main">
+    <java classname="Example" classpath="build"/>
   </target>
 
   <target name="jar" depends="compile" description="create a jar file">
-    <jar destfile="lib/NSetCache.jar">
-      <fileset dir="build/src" includes="*.class"/>
+    <jar destfile="build/NSetCache.jar">
+      <fileset dir="build" includes="*.class"/>
       <manifest>
-	<attribute name="Main-Class" value="NSetCache"/>
+	<attribute name="Main-Class" value="NSetcache"/>
       </manifest>
     </jar>
   </target>
