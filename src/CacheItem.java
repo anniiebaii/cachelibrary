@@ -1,4 +1,3 @@
-package src;
 import java.io.*;
 import java.util.*;
 import java.lang.*;
@@ -12,14 +11,6 @@ public class CacheItem
 
   public CacheItem(Object key, Object value)
   {
-    if (value == null)
-    {
-      this.isEmpty = true;
-    }
-    else
-    {
-      this.isEmpty = false;
-    }
     this.key = key;
     this.value = value;
     this.timestamp = this.getCurrentTime();
@@ -27,14 +18,6 @@ public class CacheItem
 
   public CacheItem(Object key, Object value, long timestamp)
   {
-    if (value == null)
-    {
-      this.isEmpty = true;
-    }
-    else
-    {
-      this.isEmpty = false;
-    }
     this.key = key;
     this.value = value;
     this.timestamp = timestamp;
@@ -62,11 +45,4 @@ public class CacheItem
   {
     this.timestamp = this.getCurrentTime();
   }
-
-  public boolean empty()
-  {
-    System.out.println("is empty check");
-    return this.isEmpty;
-  }
-
 }

@@ -1,9 +1,11 @@
 import java.io.*;
 import java.util.*;
 import java.lang.*;
-import src.NSetCache;
 
-public class Example
+/**
+ * Example User Class run with command "ant run"
+ */
+public class ExampleUserClass
 {
   public static void main(String[] args)
   {

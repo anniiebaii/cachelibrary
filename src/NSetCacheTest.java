@@ -10,8 +10,6 @@ import java.util.*;
 import java.lang.*;
 import java.security.*;
 import java.lang.reflect.*;
-import src.NSetCache;
-import src.CacheItem;
 import java.util.concurrent.TimeUnit;
 
 public class NSetCacheTest
