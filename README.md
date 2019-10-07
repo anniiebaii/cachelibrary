@@ -38,7 +38,7 @@ Compile and use the library by using the following steps:
 `jar xf NSetCache.jar`
 
 4. Execute main file <br>
-`java main`
+`java Example`
 
 To compile this project:
 `ant compile`
