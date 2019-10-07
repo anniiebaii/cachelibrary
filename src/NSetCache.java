@@ -250,7 +250,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
       try
       {
         MessageDigest md = MessageDigest.getInstance("MD5");
-  	    byte[] messageDigest = md.digest(hashString.getBytes());
+  	byte[] messageDigest = md.digest(hashString.getBytes());
 
         // byte array to hex value (1 indicates positive)
         BigInteger hex = new BigInteger(1, messageDigest);
@@ -268,12 +268,12 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
         }
         return hashValue;
       }
-	    catch (NoSuchAlgorithmException e)
-	    {
+      catch (NoSuchAlgorithmException e)
+      {
         // log an error
         e.printStackTrace();
         return 0;
-	    }
+      }
   }
 
   /**
