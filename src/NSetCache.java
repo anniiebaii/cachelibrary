@@ -26,20 +26,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    */
   public NSetCache(String name, Integer n, Integer m) throws IllegalArgumentException
   {
-    if (n <= 0 || m <= 0)
-    {
-      throw new IllegalArgumentException("Invalid number of sets or entries per set");
-    }
-    this.name = name;
-    this.N_sets = n;
-    this.M_blocks = m;
-    // default replacement algorithm is LRU
-    this.method = NSetCache.LEAST_RECENT;
-    // initialize n blocks
-    for (int i = 0; i < n; i++)
-    {
-      this.cache.put(i, new HashMap<K,CacheItem>(m));
-    }
+    this(name, n, m, NSetCache.LEAST_RECENT);
   }
 
   /**
