@@ -29,10 +29,10 @@ Compile and use the library by using the following steps:
 1. Compile associated library files in the project directory `/cachelibrary` <br>
 `ant jar`
 
-2. Move the created jar file `NSetCache.jar` to the same directory as your main usage class. 
+2. Move the created jar file `NSetCache.jar` to the same directory as your main usage class.
 
 3. Compile main execution file with `.jar` file <br>
-`javac -cp NSetCache.jar main.java`
+`javac -cp NSetCache.jar Example.java`
 
 4. Extract the class files from the jar files <br>
 `jar xf NSetCache.jar`
@@ -41,13 +41,13 @@ Compile and use the library by using the following steps:
 `java main`
 
 To compile this project:
-`ant compile` 
+`ant compile`
 
 To run the unit tests for this project:
-`ant test` 
+`ant test`
 
 To clean the project of executables:
-`ant clean` 
+`ant clean`
 
 ## Data Layer
 
@@ -57,11 +57,11 @@ To clean the project of executables:
 ...
 (n-1) => array(key => CacheItem, key => CacheItem)
 ```
-* The hashing algorithm for this Cache utilizes the MD5 Hashing Algorithm with the **object's hashcode** inputted as a parameter along with the modulo operation with (N-1). The reason for this design choice is to ensure that equal (i.e. identical member variables) objects, despite different pointer references in the Java heap, will always result in the same hash. 
+* The hashing algorithm for this Cache utilizes the MD5 Hashing Algorithm with the **object's hashcode** inputted as a parameter along with the modulo operation with (N-1). The reason for this design choice is to ensure that equal (i.e. identical member variables) objects, despite different pointer references in the Java heap, will always result in the same hash.
 
-* Note that different objects can result in the same hash as well, this is called a "collision". This NSetCache will utilize Least-Recently Used(LRU) and Most-Recently Used(MRU) replacement algorithms to resolve collisions when there are no more entries in the corresponding hash's block. 
+* Note that different objects can result in the same hash as well, this is called a "collision". This NSetCache will utilize Least-Recently Used(LRU) and Most-Recently Used(MRU) replacement algorithms to resolve collisions when there are no more entries in the corresponding hash's block.
 
-* The Java library defines `.equals()` and `.hashCode()` functions for primitive types, however, it is the **user's responsibility** to override `.equals(`) and `.hashCode()` functions for their respective custom object classes to ensure that utilizing objects as keys in this Cache will result in correct retrievals. For more information on the interaction between `.hashCode()` and `.equals()`, you can refer to [this](https://www.geeksforgeeks.org/equals-hashcode-methods-java/). HashMap utilizes the object's `.equals()` function to compare whether or not the given key is equal or not. For more information on the internal structure of a hashmap, refer to [this](https://www.geeksforgeeks.org/internal-working-of-hashmap-java/). 
+* The Java library defines `.equals()` and `.hashCode()` functions for primitive types, however, it is the **user's responsibility** to override `.equals(`) and `.hashCode()` functions for their respective custom object classes to ensure that utilizing objects as keys in this Cache will result in correct retrievals. For more information on the interaction between `.hashCode()` and `.equals()`, you can refer to [this](https://www.geeksforgeeks.org/equals-hashcode-methods-java/). HashMap utilizes the object's `.equals()` function to compare whether or not the given key is equal or not. For more information on the internal structure of a hashmap, refer to [this](https://www.geeksforgeeks.org/internal-working-of-hashmap-java/).
 
 
 ### CacheLibrary Interface
@@ -172,7 +172,7 @@ public class CacheItem<K,V>
 
 ### NSetCache Base Class implementing the interface
 
-Users are able to override the functions in this class if desired to modify the hashing function and the replacement algorithms. The second constructor consisting of a fourth parameter, `function`, allows users to define the function the cache should invoke when inserting while the cache is full. The expected parameter in this function are the defined string constants in this class. Aside from the provided LRU/MRU replacement algorithm,vthe userDefinedAlgorithm is defaulted to LRU to enable general flexibility for users to override and define their own replacement criterias and can be extendable for further specific usage when overridden. 
+Users are able to override the functions in this class if desired to modify the hashing function and the replacement algorithms. The second constructor consisting of a fourth parameter, `function`, allows users to define the function the cache should invoke when inserting while the cache is full. The expected parameter in this function are the defined string constants in this class. Aside from the provided LRU/MRU replacement algorithm,vthe userDefinedAlgorithm is defaulted to LRU to enable general flexibility for users to override and define their own replacement criterias and can be extendable for further specific usage when overridden.
 
 ```java
 public class NSetCache
@@ -198,7 +198,7 @@ public class NSetCache
    */
   public NSetCache(String name, Integer n, Integer m) throws IllegalArgumentException
   { ... }
-  
+
   /**
    * @brief Constructor
    * @param String name The name of the cache
@@ -237,7 +237,7 @@ public class NSetCache
    */
   public int getHash(K key)
   { ... }
- 
+
 }
 ```
 
