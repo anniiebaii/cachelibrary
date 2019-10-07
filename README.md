@@ -20,7 +20,7 @@ The process of retrieving data from this cache follows these steps: <br>
 
 ## Technologies
 
-JDK 8+
+JDK 8+, JUnit, Apache Ant
 
 ## Structure
 
