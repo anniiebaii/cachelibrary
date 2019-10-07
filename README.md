@@ -61,7 +61,7 @@ To clean the project of executables:
 
 * Note that different objects can result in the same hash as well, this is called a "collision". This NSetCache will utilize Least-Recently Used(LRU) and Most-Recently Used(MRU) replacement algorithms to resolve collisions when there are no more entries in the corresponding hash's block. 
 
-* The Java library defines .equal() and .hashCode() functions for defined primitive types, however, it is the **user's responsibility** to override .equal() and .hashCode() functions for their respective custom object classes to ensure that utilizing objects as keys in this Cache will result in correct retrievals. HashMap utilizes the object's .equals() function to compare whether or not the given key is equal or not. For more information on the internal structure of a hashmap, refer to [this](https://www.geeksforgeeks.org/internal-working-of-hashmap-java/). 
+* The Java library defines .equals() and .hashCode() functions for defined primitive types, however, it is the **user's responsibility** to override .equals() and .hashCode() functions for their respective custom object classes to ensure that utilizing objects as keys in this Cache will result in correct retrievals. For more information on the interaction between .hashCode() and .equals(), you can refer to [this](https://www.geeksforgeeks.org/equals-hashcode-methods-java/). HashMap utilizes the object's .equals() function to compare whether or not the given key is equal or not. For more information on the internal structure of a hashmap, refer to [this](https://www.geeksforgeeks.org/internal-working-of-hashmap-java/). 
 
 
 ### CacheLibrary Interface
