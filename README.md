@@ -237,17 +237,7 @@ public class NSetCache
    */
   public int getHash(K key)
   { ... }
-  
-  /**
-   * @brief Returns a fake CacheItem object to users if it is a cache miss.
-   * @note It is expected that users @Override this with their own database implementation
-   * @param  key [description]
-   * @return     [description]
-   */
-  public CacheItem retrieveFromDB(K key)
-  {
-    return null;
-  }
+ 
 }
 ```
 
