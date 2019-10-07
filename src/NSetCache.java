@@ -90,7 +90,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     // if no entry corresponds to given key
     if (entry == null)
     {
-      return this.retrieveFromDB(key);
+      return NULL;
     }
     // update timestamp
     this.cache.get(index).get(key).updateTimestamp();
@@ -309,16 +309,5 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
       default:
         this.LRU(index);
     }
-  }
-
-  /**
-   * @brief Returns a fake CacheItem object to users if it is a cache miss.
-   * @note It is expected that users @Override this with their own database implementation
-   * @param  key [description]
-   * @return     [description]
-   */
-  public CacheItem retrieveFromDB(K key)
-  {
-    return null;
   }
 }
