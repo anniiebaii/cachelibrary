@@ -16,7 +16,6 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   private final int M_blocks;
   private final String name;
   private final String method;
-  private Method replacementAlgorithm;
   private final HashMap<Integer, HashMap<K,CacheItem>> cache = new HashMap<Integer, HashMap<K,CacheItem>>();
 
   /**
@@ -90,7 +89,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     // if no entry corresponds to given key
     if (entry == null)
     {
-      return NULL;
+      return null;
     }
     // update timestamp
     this.cache.get(index).get(key).updateTimestamp();
