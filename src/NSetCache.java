@@ -73,7 +73,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
 
   /**
    * @brief Retrieves a value from the cache by a given key
-   * @return V Value corresponding to given key
+   * @return V Value corresponding to given key NULL if no entry in cache
    */
   public CacheItem get(K key)
   {
@@ -265,7 +265,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
         MessageDigest md = MessageDigest.getInstance("MD5");
   	    byte[] messageDigest = md.digest(hashString.getBytes());
 
-        // byte array to hex value
+        // byte array to hex value (1 indicates positive)
         BigInteger hex = new BigInteger(1, messageDigest);
 
         // hex value to long integer
