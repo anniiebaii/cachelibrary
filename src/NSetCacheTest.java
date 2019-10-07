@@ -286,6 +286,12 @@ public class NSetCacheTest
   {
     NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, NSetCache.MOST_RECENT);
     cache.set(1, "First");
+    try
+    {
+      TimeUnit.SECONDS.sleep(2); // to ensure timestamp is different
+    }
+    catch (InterruptedException e)
+    {}
     cache.set(2, "Second");
     cache.set(3, "Third");
 

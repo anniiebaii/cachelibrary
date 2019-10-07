@@ -112,7 +112,6 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     {
       eviction(index);
     }
-
     if (this.cache.get(index).put(key, entry) == null)
     {
       // new key-value pair
@@ -227,6 +226,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
       if (first == false)
       {
         recent = curr;
+        first = true;
       }
       else if (curr.getTimestamp() > recent.getTimestamp())
       {
@@ -274,7 +274,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
         // mod to retrieve an index from 0 to N_sets - 1 buckets
         int hashValue = value.intValue() % this.N_sets;
 
-        // prevent negative numbers
+        // prevent negative numbers (shouldn't happen)
         if (hashValue < 0)
         {
           hashValue = hashValue * -1;
