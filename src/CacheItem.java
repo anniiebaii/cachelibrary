@@ -1,10 +1,11 @@
 import java.io.*;
 import java.util.*;
 import java.lang.*;
+import java.time.Instant;
 
 public class CacheItem
 {
-  private long timestamp;
+  private Instant timestamp;
   private Object key;
   private Object value;
   public boolean isEmpty;
@@ -13,20 +14,14 @@ public class CacheItem
   {
     this.key = key;
     this.value = value;
-    this.timestamp = this.getCurrentTime();
+    this.timestamp = Instant.now();
   }
 
-  public CacheItem(Object key, Object value, long timestamp)
+  public CacheItem(Object key, Object value, Instant timestamp)
   {
     this.key = key;
     this.value = value;
     this.timestamp = timestamp;
-  }
-
-  public long getCurrentTime()
-  {
-    Date date = new Date(System.currentTimeMillis());
-    return date.getTime();
   }
 
   public Object getValue()
@@ -37,12 +32,13 @@ public class CacheItem
   {
     return this.key;
   }
-  public long getTimestamp()
+  public Instant getTimestamp()
   {
     return this.timestamp;
   }
   public void updateTimestamp()
   {
-    this.timestamp = this.getCurrentTime();
+    //this.timestamp = this.getCurrentTime();
+    this.timestamp = Instant.now();
   }
 }

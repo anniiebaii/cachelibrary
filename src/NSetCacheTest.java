@@ -263,12 +263,12 @@ public class NSetCacheTest
     NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, NSetCache.LEAST_RECENT);
     cache.set(1, "First");
     cache.set(2, "Second");
-    try
-    {
-      TimeUnit.SECONDS.sleep(2); // to ensure timestamp is different
-    }
-    catch (InterruptedException e)
-    {}
+    // try
+    // {
+    //   TimeUnit.SECONDS.sleep(2); // to ensure timestamp is different
+    // }
+    // catch (InterruptedException e)
+    // {}
     cache.get(1);
     cache.set(3, "Third");
     // check that Second is deleted

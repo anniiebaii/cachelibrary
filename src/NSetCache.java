@@ -4,6 +4,7 @@ import java.lang.*;
 import java.lang.reflect.Method;
 import java.security.*;
 import java.math.BigInteger;
+import java.time.Instant;
 
 public class NSetCache<K,V> implements CacheLibrary<K,V>
 {
@@ -191,7 +192,8 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     for (Map.Entry<K, CacheItem> entry : this.cache.get(index).entrySet())
     {
       CacheItem curr = entry.getValue();
-      if (curr.getTimestamp() < least.getTimestamp())
+      //if (curr.getTimestamp() < least.getTimestamp())
+      if (curr.getTimestamp().isBefore(least.getTimestamp()))
       {
         least = curr;
       }
@@ -215,7 +217,8 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
         recent = curr;
         first = true;
       }
-      else if (curr.getTimestamp() > recent.getTimestamp())
+      //else if (curr.getTimestamp() > recent.getTimestamp())
+      else if (curr.getTimestamp().isAfter(recent.getTimestamp()))
       {
         recent = curr;
       }
