@@ -122,12 +122,14 @@ public interface CacheLibrary<K,V>
 
 ### CacheItem Class
 
-Class used by NSetCache to store a cache entry as an object
+Class used by NSetCache to store a cache entry as an object.
+Instant class is used to represent the timestamp of cache creation, because
+it is thread-safe and has a higher level of precision compared to milliseconds.
 
 ```java
 public class CacheItem<K,V>
 {
-  private long timestamp;
+  private Instant timestamp;
   private K key;
   private V value;
 
@@ -135,7 +137,7 @@ public class CacheItem<K,V>
   {
     this.key = key;
     this.value = value;
-    this.timestamp = getCurrentTime();
+    this.timestamp = Instant.now();
   }
 
   public CacheItem(K key, V value, long timestamp)
@@ -143,12 +145,6 @@ public class CacheItem<K,V>
     this.key = key;
     this.value = value;
     this.timestamp = timestamp;
-  }
-
-  public static long getCurrentTime()
-  {
-    Date date = new Date(System.currentTimeMillis());
-    return date.getTime();
   }
 
   public V getValue()
@@ -159,13 +155,13 @@ public class CacheItem<K,V>
   {
     return this.key;
   }
-  public long getTimestamp()
+  public Instant getTimestamp()
   {
     return this.timestamp;
   }
   public void updateTimestamp()
   {
-    this.timestamp = this.getCurrentTime();
+    this.timestamp = Instant.now();
   }
 }
 ```
