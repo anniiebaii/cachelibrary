@@ -78,6 +78,7 @@ public class NSetCacheTest
   {
     NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 5, 2);
     assertTrue(cache.set(1, "Hello World"));
+    assertFalse(cache.set(1, "Hello World"));
 
     // check that values are actually set
     try
@@ -286,12 +287,12 @@ public class NSetCacheTest
   {
     NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, NSetCache.MOST_RECENT);
     cache.set(1, "First");
-    try
-    {
-      TimeUnit.SECONDS.sleep(2); // to ensure timestamp is different
-    }
-    catch (InterruptedException e)
-    {}
+    // try
+    // {
+    //   TimeUnit.SECONDS.sleep(2); // to ensure timestamp is different
+    // }
+    // catch (InterruptedException e)
+    // {}
     cache.set(2, "Second");
     cache.set(3, "Third");
 
@@ -327,6 +328,12 @@ public class NSetCacheTest
     // check that hash for different object references, but equal by the equals() function
     // returns equal hash values for this cache
     assertTrue(cache.getHash(obj1) == cache.getHash(obj6));
+  }
+
+  @Test
+  public void test_workflow()
+  {
+
   }
 
 /**
