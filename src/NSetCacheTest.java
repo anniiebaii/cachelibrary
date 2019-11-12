@@ -176,7 +176,6 @@ public class NSetCacheTest
     }
 
     // testing with sample object class
-
     NSetCache<SampleObject, String> ObjCache = new NSetCache<SampleObject, String>("ObjCache", 5, 2);
     SampleObject one = new SampleObject("Hello One");
     SampleObject two = new SampleObject("Hello Two");
@@ -264,12 +263,6 @@ public class NSetCacheTest
     NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, NSetCache.LEAST_RECENT);
     cache.set(1, "First");
     cache.set(2, "Second");
-    // try
-    // {
-    //   TimeUnit.SECONDS.sleep(2); // to ensure timestamp is different
-    // }
-    // catch (InterruptedException e)
-    // {}
     cache.get(1);
     cache.set(3, "Third");
     // check that Second is deleted
@@ -285,25 +278,20 @@ public class NSetCacheTest
   @Test
   public void test_MRU()
   {
-    NSetCache<Integer, String> cache = new NSetCache<Integer, String>("cache", 1, 2, NSetCache.MOST_RECENT);
-    cache.set(1, "First");
-    // try
-    // {
-    //   TimeUnit.SECONDS.sleep(2); // to ensure timestamp is different
-    // }
-    // catch (InterruptedException e)
-    // {}
-    cache.set(2, "Second");
-    cache.set(3, "Third");
+    NSetCache<Integer, Integer> cache = new NSetCache<Integer, Integer>("cache", 1, 2, NSetCache.MOST_RECENT);
+    for (int i = 1; i < 4; i++)
+    {
+      cache.set(i, i);
+    }
 
     // check that Second is deleted
     assertNull(cache.get(2));
     // check that First is not deleted
     assertNotNull(cache.get(1));
-    assertEquals("First", cache.get(1).getValue());
+    assertEquals(1, cache.get(1).getValue());
     // check that Third is inserted
     assertNotNull(cache.get(3));
-    assertEquals("Third", cache.get(3).getValue());
+    assertEquals(3, cache.get(3).getValue());
   }
 
   @Test
@@ -331,9 +319,45 @@ public class NSetCacheTest
   }
 
   @Test
+  public void test_getCount()
+  {
+    NSetCache<Integer, Integer> cache = new NSetCache<Integer, Integer>("cache", 1, 10);
+    for (int i = 0; i < 4; i++)
+    {
+      cache.set(i, i);
+    }
+    assertEquals(4, cache.getCount());
+  }
+
+  @Test
   public void test_workflow()
   {
+    int N_entries = 5;
+    NSetCache<Integer,Integer> cache = new NSetCache<Integer,Integer>("cache", 1, N_entries);
+    for (int i = 0; i < 50; i++)
+    {
+      cache.set(i, i);
+    }
+    // check that least recent entries are evicted
+    for (int i = 45; i < 50; i++)
+    {
+      assertEquals(i, cache.get(i).getValue());
+    }
+  }
 
+  @Test
+  public void test_EqualObjects()
+  {
+    int N_entries = 5;
+    NSetCache<SampleObject,Integer> obj_cache = new NSetCache<SampleObject,Integer>("cache", 1, N_entries);
+    for (int i = 0; i < 50; i++)
+    {
+      SampleObject obj = new SampleObject("sample");
+      obj_cache.set(obj, i);
+    }
+    // check that only one entry exists
+    assertEquals(49, obj_cache.get(new SampleObject("sample")).getValue());
+    assertEquals(1, obj_cache.getCount());
   }
 
 /**

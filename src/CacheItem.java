@@ -15,6 +15,7 @@ public class CacheItem
     this.key = key;
     this.value = value;
     this.timestamp = Instant.now();
+    // System.out.println("TIME: " + this.timestamp);
   }
 
   public CacheItem(Object key, Object value, Instant timestamp)

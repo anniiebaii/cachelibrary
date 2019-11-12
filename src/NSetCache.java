@@ -102,6 +102,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     }
     if (this.cache.get(index).put(key, entry) == null)
     {
+      // System.out.println("INSERTED KEY: " + key);
       // new key-value pair
       return true;
     }
@@ -199,6 +200,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
       }
     }
     this.delete((K)least.getKey());
+    // System.out.println("DELETED KEY: " + (K)least.getKey());
   }
 
   /**
@@ -224,6 +226,8 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
       }
     }
     this.delete((K)recent.getKey());
+    // System.out.println("DELETED KEY: " + (K)recent.getKey());
+
   }
 
   /**
@@ -269,6 +273,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
         {
           hashValue = hashValue * -1;
         }
+        // System.out.println("hashed to BLOCK: " + hashValue);
         return hashValue;
       }
       catch (NoSuchAlgorithmException e)
@@ -298,5 +303,15 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
       default:
         this.LRU(index);
     }
+  }
+
+  public int getCount()
+  {
+    int count = 0;
+    for (int i = 0; i < N_sets; i++)
+    {
+      count += this.cache.get(i).size();
+    }
+    return count;
   }
 }
