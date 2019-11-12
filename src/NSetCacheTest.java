@@ -360,6 +360,22 @@ public class NSetCacheTest
     assertEquals(1, obj_cache.getCount());
   }
 
+  @Test
+  public void test_CustomReplacement()
+  {
+    MyCustomCache<Integer,Integer> int_cache = new MyCustomCache<Integer,Integer>("ints", 1, 5, MyCustomCache.USER_DEFINED);
+    for (int i = 0; i < 6; i++)
+    {
+      int_cache.set(i, i);
+    }
+    for (int i = 0; i < 4; i++)
+    {
+      assertNotNull(int_cache.get(i));
+    }
+    assertNotNull(int_cache.get(5));
+    assertNull(int_cache.get(4));
+  }
+
 /**
  * Sample Object class used with this Cache Library to illustrate support with various objects
  * @Note that hashCode and equals methods are overridden to define object equality
@@ -400,6 +416,49 @@ public class NSetCacheTest
     {
       return Objects.hash(this.name);
     }
+  }
 
+  private class MyCustomCache<K,V> extends NSetCache<K,V>
+  {
+    public MyCustomCache(String name, Integer n, Integer m) throws IllegalArgumentException
+    {
+      super(name, n, m);
+    }
+
+    /**
+     * @brief Constructor
+     * @param String name The name of the cache
+     * @param Integer n The number of sets
+     * @param Integer m The number of entries per set
+     * @param String function The name of the algorithm to invoke when the cache is full
+     */
+    public MyCustomCache(String name, Integer n, Integer m, String function) throws IllegalArgumentException
+    {
+      super(name, n, m, function);
+    }
+    /**
+     * @brief Evict largest integer
+     * @param index
+     */
+    @Override
+    public void userDefinedReplacementAlgorithm(int index)
+    {
+      boolean first = false;
+      CacheItem largest = new CacheItem(-1, -1);
+      for (Map.Entry<K, CacheItem> entry : this.cache.get(index).entrySet())
+      {
+        CacheItem curr = entry.getValue();
+        if ((int)largest.getValue() == -1)
+        {
+          largest = curr;
+          continue;
+        }
+        if ((int)curr.getValue() > (int)largest.getValue())
+        {
+          largest = curr;
+        }
+      }
+      this.delete((K)largest.getKey());
+      }
   }
 }

@@ -12,12 +12,12 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   public static final String MOST_RECENT = "MRU";
   public static final String USER_DEFINED = "USER DEFINED";
 
-  // private variables
-  private final int N_sets;
-  private final int M_blocks;
-  private final String name;
-  private final String method;
-  private final HashMap<Integer, HashMap<K,CacheItem>> cache = new HashMap<Integer, HashMap<K,CacheItem>>();
+  // protected variables
+  protected final int N_sets;
+  protected final int M_blocks;
+  protected final String name;
+  protected final String method;
+  protected final HashMap<Integer, HashMap<K,CacheItem>> cache = new HashMap<Integer, HashMap<K,CacheItem>>();
 
   /**
    * @brief Basic Constructor
