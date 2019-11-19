@@ -88,7 +88,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
    * @brief Inserts a key-value pair into the cache
    * @param K key
    * @param V value
-   * @return boolean True if new pair, False if old pair
+   * @return boolean True if new key, False if old key
    */
   public boolean set(K key, V value)
   {
@@ -96,18 +96,29 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
     int index = this.getHash(key);
     HashMap<K, CacheItem> block = this.cache.get(index);
 
-    if (block.size() == this.M_blocks)
-    {
-      eviction(index);
-    }
-    if (this.cache.get(index).put(key, entry) == null)
+    // check if this element exists, then replace instead of evict
+    if (this.cache.get(index).get(key) != null)
     {
       // System.out.println("INSERTED KEY: " + key);
       // new key-value pair
+      // it is existing key, new CacheItem entry created w/ latest timestamp replaces it
+      this.cache.get(index).replace(key, entry);
+      return false;
+    }
+    else
+    {
+      // full, evict
+      if (block.size() == this.M_blocks)
+      {
+        eviction(index);
+      }
+      // not full, insert
+      else
+      {
+        this.cache.get(index).put(key, entry);
+      }
       return true;
     }
-    return false;
-    // else, it is existing key, new CacheItem entry created w/ latest timestamp replaces it
   }
 
   /**
@@ -187,7 +198,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   /**
    * @brief Simple LRU Replacement Algorithm
    */
-  public void LRU(int index)
+  public synchronized void LRU(int index)
   {
     CacheItem least = new CacheItem(null,null);
     for (Map.Entry<K, CacheItem> entry : this.cache.get(index).entrySet())
@@ -206,7 +217,7 @@ public class NSetCache<K,V> implements CacheLibrary<K,V>
   /**
    * @brief Simple MRU Replacement Algorithm
    */
-  public void MRU(int index)
+  public synchronized void MRU(int index)
   {
     CacheItem recent = new CacheItem(null,null);
     boolean first = false;

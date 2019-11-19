@@ -330,22 +330,6 @@ public class NSetCacheTest
   }
 
   @Test
-  public void test_workflow()
-  {
-    int N_entries = 5;
-    NSetCache<Integer,Integer> cache = new NSetCache<Integer,Integer>("cache", 1, N_entries);
-    for (int i = 0; i < 50; i++)
-    {
-      cache.set(i, i);
-    }
-    // check that least recent entries are evicted
-    for (int i = 45; i < 50; i++)
-    {
-      assertEquals(i, cache.get(i).getValue());
-    }
-  }
-
-  @Test
   public void test_EqualObjects()
   {
     int N_entries = 5;
@@ -374,6 +358,24 @@ public class NSetCacheTest
     }
     assertNotNull(int_cache.get(5));
     assertNull(int_cache.get(4));
+  }
+
+  @Test
+  public void test_workflow()
+  {
+    int N_entries = 5;
+    NSetCache<Integer,Integer> cache = new NSetCache<Integer,Integer>("cache", 1, N_entries);
+    for (int i = 0; i < 50; i++)
+    {
+      cache.set(i, i);
+    }
+    // check that least recent entries are evicted
+    for (int i = 45; i < 50; i++)
+    {
+      assertEquals(i, cache.get(i).getValue());
+    }
+
+    // stress multithreadng test for set
   }
 
 /**
@@ -425,13 +427,6 @@ public class NSetCacheTest
       super(name, n, m);
     }
 
-    /**
-     * @brief Constructor
-     * @param String name The name of the cache
-     * @param Integer n The number of sets
-     * @param Integer m The number of entries per set
-     * @param String function The name of the algorithm to invoke when the cache is full
-     */
     public MyCustomCache(String name, Integer n, Integer m, String function) throws IllegalArgumentException
     {
       super(name, n, m, function);
